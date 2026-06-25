@@ -33,7 +33,7 @@ File `src/data/missions.js` định nghĩa `missions[chapterId] = [ ...mission ]
 ```
 
 ### Quy ước bắt buộc
-- **hints LUÔN đúng 3 phần tử.** Cấp 1 gợi ý hướng, cấp 2 nêu lệnh + flag, cấp 3 gần như đáp án.
+- **hints LUÔN đúng 3 phần tử.** Cấp 1 gợi ý hướng, cấp 2 nêu lệnh + flag, cấp 3 gần như đáp án. **Ngoại lệ Ch10 (elite "không hint"): giữ 1 hint/bài placeholder.**
 - **filesystem LUÔN có `/` và `/home/hacker`** (test ràng buộc). Object dạng `{ '<path>': { type: 'dir' } }` hoặc `{ type: 'file', content: '...' }`.
 - **id duy nhất & nối tiếp** trong chương, không nhảy số, không trùng.
 - **match là RegExp**, neo `^`, khoan dung thứ tự flag, chuẩn hoá khoảng trắng. Ví dụ:

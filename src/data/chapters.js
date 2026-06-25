@@ -14,7 +14,7 @@ export const chapters = [
       '|, >, >>, <, 2>&1',
       '*, ?, [abc]',
     ],
-    missionCount: 3,
+    missionCount: 16,
   },
   {
     id: 2,
@@ -23,7 +23,7 @@ export const chapters = [
     story:
       'Server bỗng nhiên chậm như rùa. CPU 100%. Mày phải điều tra xem thứ gì đang ăn tài nguyên — và kill nó trước khi sếp phát hiện.',
     skills: ['top, htop, ps aux', 'kill, killall, pkill', 'systemctl', 'df -h, du -sh, free -h', 'cron'],
-    missionCount: 3,
+    missionCount: 16,
   },
   {
     id: 3,
@@ -31,7 +31,7 @@ export const chapters = [
     badge: '🌐',
     story: 'Deploy xong app nhưng không ai vào được. Mày phải debug network từng bước một để tìm ra điểm nghẽn.',
     skills: ['ping, traceroute', 'dig, nslookup', 'curl, wget', 'netstat, ss', 'iptables, ufw'],
-    missionCount: 3,
+    missionCount: 18,
   },
   {
     id: 4,
@@ -39,7 +39,7 @@ export const chapters = [
     badge: '🔑',
     story: 'Công ty mở rộng, có 20 server mới. Mày phải setup SSH key-based auth cho tất cả, không được dùng password.',
     skills: ['ssh-keygen, ssh-copy-id', '~/.ssh/config', 'port forwarding', 'scp, rsync'],
-    missionCount: 3,
+    missionCount: 15,
   },
   {
     id: 5,
@@ -47,7 +47,7 @@ export const chapters = [
     badge: '🔍',
     story: 'Khách hàng thuê công ty mày pentest hệ thống của họ. Mày có địa chỉ IP và domain. Thu thập tối đa thông tin trước khi tấn công.',
     skills: ['whois, dig', 'nmap', 'gobuster, ffuf, nikto', 'subfinder, amass'],
-    missionCount: 3,
+    missionCount: 18,
   },
   {
     id: 6,
@@ -55,7 +55,7 @@ export const chapters = [
     badge: '🕷️',
     story: 'Trong quá trình recon, mày phát hiện web app của target có dấu hiệu vulnerable. Giờ là lúc kiểm chứng.',
     skills: ['SQL Injection', 'XSS', 'IDOR', 'LFI/RFI', 'Burp Suite'],
-    missionCount: 3,
+    missionCount: 20,
   },
   {
     id: 7,
@@ -63,7 +63,7 @@ export const chapters = [
     badge: '⚡',
     story: 'Mày đã vào được server với user thường. Nhưng file quan trọng nhất nằm trong /root. Mày phải leo lên root.',
     skills: ['SUID/SGID', 'sudo misconfiguration', 'cron exploit', 'GTFOBins'],
-    missionCount: 3,
+    missionCount: 18,
   },
   {
     id: 8,
@@ -71,7 +71,7 @@ export const chapters = [
     badge: '💀',
     story: 'Mày đã học đủ. Giờ là bài test cuối. Một hệ thống giả lập hoàn chỉnh — mày phải hack từ đầu đến cuối.',
     skills: ['Recon → Foothold → Privesc → Capture the Flag'],
-    missionCount: 3,
+    missionCount: 12,
   },
   {
     id: 9,
@@ -80,7 +80,7 @@ export const chapters = [
     story:
       'Mày đã chiếm được một tài khoản domain quèn trong mạng doanh nghiệp. Nhưng phần thưởng thật là cả Active Directory. Học cách di chuyển ngang, đánh cắp danh tính, và leo lên Domain Admin.',
     skills: ['Kerberoasting', 'Pass-the-Hash', 'DCSync / Golden Ticket', 'BloodHound, impacket, mimikatz'],
-    missionCount: 3,
+    missionCount: 14,
   },
   {
     id: 10,
@@ -89,7 +89,7 @@ export const chapters = [
     story:
       'Không story, không hint, không nương tay. Ba hệ thống đỉnh cao — container escape, binary exploitation, và một cuộc red-team hoàn chỉnh từ OSINT tới Domain Admin. Tự lực hoàn toàn.',
     skills: ['Container escape', 'Binary exploitation (ret2win)', 'Full red-team chain', 'Không hint — elite only'],
-    missionCount: 3,
+    missionCount: 10,
   },
 ];
 

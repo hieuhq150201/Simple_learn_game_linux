@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Mỗi mission: `id, chapterId, title, story, steps[{id, description, match:RegExp, output?}], hints[ĐÚNG 3], debrief[], terms[3-5×{term,def}], initialFilesystem`.
-- `hints.length === 3` luôn luôn.
+- `hints.length === 3` luôn luôn — **ngoại lệ Ch10 elite: giữ 1 hint/bài** theo thiết kế "không hint".
 - `initialFilesystem` luôn có key `'/'` và `'/home/hacker'`.
 - `output` ở step CHỈ cho lệnh ảo (nmap/ssh/ping/systemctl/dig/ps); lệnh file-based bỏ trống.
 - Giọng "mày/tao", tiếng Việt, bám tông `src/data/extra/chapter1.js`.
@@ -228,7 +228,7 @@ git commit -m "feat(ch1): mở rộng lên 16 bài (chương mẫu)"
 | 9 | 7 | sonnet | 3→18 | id/sudo -l/uname, find -perm -4000 (SUID), sudo NOPASSWD/wildcard, cron world-writable, PATH hijack, kernel CVE, crack /etc/shadow, GTFOBins. **Tái dùng filesystem m4-9 đã có nội dung thật.** |
 | 10 | 8 | sonnet | 6→12 | chuỗi CTF tăng dần: SQLi+sudo, FTP anon+upload RCE+SUID, OSINT→subdomain→LFI→log poisoning→cron. Flag `HTB{}`/`FLAG{}`. **Bước cuối nói "flag"/"cờ".** |
 | 11 | 9 | sonnet | 6→14 | enum AD, Kerberoasting, AS-REP roast, Pass-the-Hash, PtT, DCSync, Golden/Silver Ticket, BloodHound, impacket/mimikatz |
-| 12 | 10 | sonnet | 6→10 | container escape, binary exploitation (ret2win), full red-team OSINT→DA. Không hint dễ. **Bước cuối CTF nói "flag"/"cờ".** |
+| 12 | 10 | sonnet | 6→10 | container escape, binary exploitation (ret2win), full red-team OSINT→DA. **Giữ 1 hint/bài (elite, không gợi ý).** Bước cuối CTF nói "flag"/"cờ". |
 
 Thả theo đợt: Tasks 4-6 (haiku) + 7-8 trước, rồi 9-12.
 
