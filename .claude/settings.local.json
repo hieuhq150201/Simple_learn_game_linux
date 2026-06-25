@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"require\\('playwright'\\)\")",
+      "Bash(npx --yes playwright --version)",
+      "Bash(bun add *)",
+      "Bash(npx playwright *)",
+      "Bash(node *)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(git -C /Users/dino/Documents/projects/game status)",
+      "Bash(bun run *)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"HTTP:%{http_code}\\\\n\" http://localhost:4001/)",
+      "Bash(npx vitest *)",
+      "Bash(awk '/chapterId: 8/{f=1} f&&/id: 1,/{print NR\": id1\"} f' src/data/missions.js)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(awk '/^  9: \\\\[/{f=1} f{print} /^  10: \\\\[/{g=1} /^  \\\\},$/{if\\(g\\)exit}' src/data/missions.js)",
+      "Bash(grep -rn \"instantiateMission\\\\|randomize\\\\|FLAG{\\\\|flag.txt\\\\|__FLAG__\\\\|{flag}\\\\|\\\\${flag}\" src/utils/ src/data/missions.js src/App.jsx)"
+    ]
+  }
+}
