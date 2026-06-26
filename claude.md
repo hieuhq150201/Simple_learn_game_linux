@@ -363,3 +363,25 @@ Mỗi lệnh = 1 API call. Cần debounce, và có thể cache response cho các
 - `hint` → trigger hint system
 - `exit` → về chapter map
 - `help` → show available commands cho mission hiện tại
+
+---
+
+## ⚠️⚠️ QUY TẮC KIỂM THỬ — BẮT BUỘC TRƯỚC KHI NÓI "XONG"
+
+> Sai lầm đã xảy ra: thêm hàng loạt mission, pass test cấu trúc (schema) + build, rồi tuyên bố "xong" — NHƯNG chưa hề chơi thử. Kết quả: ~205/574 step có regex `match` lệch lệnh mà hint dạy → player gõ đúng theo hint vẫn KẸT. Cấu trúc đúng ≠ chơi được.
+
+**1. Mission phải CHƠI ĐƯỢC, không chỉ đúng cấu trúc.**
+   - Test schema (`missions.validate.test.js`, `check-chapter.mjs`) CHỈ chứng minh đủ field — KHÔNG chứng minh mission hoàn thành được.
+   - Mỗi step có `match` (RegExp) + `hints`. Bắt buộc: lệnh mà hint dạy (trong dấu backtick) PHẢI khớp `match` của step. Player đi theo hint là phải qua được mission.
+   - Gate: `node scripts/playtest-chapter.mjs <N>` — mô phỏng chơi bằng cách đẩy lệnh trong hint qua chính `evaluateCommand` (engine thật). Phải in "✅ ... chơi được bằng hint." cho mọi mission extra.
+   - Regex viết KHOAN DUNG: chấp nhận PID số `\d+`, `$(pgrep x)`, `$VAR`, đảo thứ tự flag. Đừng đòi đúng một dạng cứng.
+   - Bài `noHints: true` (Ch10): gate bỏ qua → phải đọc & kiểm regex thủ công cho khớp lệnh đúng kỹ thuật.
+
+**2. UI/UX phải CHẠY THỬ, không chỉ build.**
+   - `vite build` xanh chỉ chứng minh compile. Phải chạy `npm run dev` và thật sự thao tác (gõ lệnh → output hiện, step tick, TermsPanel render, hint hiện) hoặc có test render (jsdom + Testing Library).
+
+**3. KHÔNG tin báo cáo suông.**
+   - Sub-agent báo "idle/done" KHÔNG có nghĩa đã làm/đúng. LUÔN verify độc lập bằng `check-chapter.mjs` (cấu trúc) + `playtest-chapter.mjs` (chơi được) trước khi commit/tuyên bố.
+   - Trước khi nói "hoàn thành": chạy `npx vitest run` + cả 10 chương qua `playtest-chapter` + chạy thử UI. Có bằng chứng rồi mới khẳng định.
+
+**Hai gate bắt buộc cho mọi thay đổi mission:** `scripts/check-chapter.mjs <N>` (cấu trúc) **VÀ** `scripts/playtest-chapter.mjs <N>` (chơi được).

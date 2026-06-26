@@ -103,7 +103,7 @@ export default [
       {
         id: 'all_ports',
         description: 'Quét toàn bộ 65535 cổng TCP (-p-) trên host chính',
-        match: /^nmap\b.*-p-\b/,
+        match: /^nmap\b.*-p-(\s|$)/,
         output: [
           'Nmap scan report for 10.10.14.55',
           'PORT      STATE SERVICE',
@@ -277,7 +277,7 @@ export default [
     hints: [
       'Cần một wordlist và công cụ fuzz đường dẫn. File đã có: /home/hacker/common.txt.',
       'Directory: `gobuster dir -u http://10.10.14.55 -w /home/hacker/common.txt`.',
-      'Bắt file ẩn: thêm `-x php,txt`. Hoặc dùng `ffuf -u http://10.10.14.55/FUZZ -w /home/hacker/common.txt -mc 200` để chỉ thấy status 200.',
+      'Bắt file ẩn: thêm đuôi `gobuster dir -u http://10.10.14.55 -w /home/hacker/common.txt -x php,txt`. Hoặc dùng `ffuf -u http://10.10.14.55/FUZZ -w /home/hacker/common.txt -mc 200` để chỉ thấy status 200.',
     ],
     debrief: [
       'Content discovery (dir busting) đoán đường dẫn không có link trỏ tới — admin panel, backup, file config — những thứ "ẩn" chỉ vì không ai link, chứ không hề được bảo vệ.',
@@ -390,7 +390,7 @@ export default [
     hints: [
       'Trước khi khai thác tay, để scanner khoanh vùng: tech stack + lỗ hổng thường gặp.',
       'Fingerprint: `whatweb http://10.10.14.55`. Quét lỗ hổng: `nikto -h http://10.10.14.55`.',
-      'Nikto báo `/backup/` bật directory indexing — vào đó. Cờ ở `/var/www/html/backup/flag.txt`, đọc bằng `cat`.',
+      'Nikto báo /backup/ bật directory indexing — vào đó. Đọc cờ bằng `cat /var/www/html/backup/flag.txt`.',
     ],
     debrief: [
       'Vulnerability scanning tự động (nikto) phủ nhanh các lỗi cấu hình & file nhạy quen thuộc — nhưng ồn (đầy log) và nhiều false positive, nên dùng để khoanh vùng rồi xác minh tay, đừng tin mù.',
@@ -437,14 +437,14 @@ export default [
       },
       {
         id: 'read_note',
-        description: 'Đọc ghi chú đã lưu để hiểu vì sao AXFR thất bại là tin tốt cho defender',
-        match: /^cat\s+.*axfr-note\.txt/,
+        description: 'Đọc lại ghi chú target ban đầu để đối chiếu với NS/MX vừa đào được',
+        match: /^cat\s+.*target\.txt/,
       },
     ],
     hints: [
       'DNS không chỉ có A record — MX cho mail, NS cho name server, và một thử nghiệm "được ăn cả ngã về không": zone transfer.',
       'Dùng `dig ns acme-corp.com` và `dig mx acme-corp.com` để lấy 2 loại record này.',
-      'Thử AXFR: `dig axfr acme-corp.com @ns1.digitalocean.com` — nếu bị từ chối (transfer failed) là server cấu hình ĐÚNG; nếu thành công và dump hết record thì đó là lỗ hổng nghiêm trọng.',
+      'Thử AXFR: `dig axfr acme-corp.com @ns1.digitalocean.com` — nếu bị từ chối (transfer failed) là server cấu hình ĐÚNG. Đối chiếu lại ghi chú ban đầu bằng `cat /home/hacker/target.txt`.',
     ],
     debrief: [
       'NS record xác nhận ai đang authoritative cho domain; MX record lộ luôn nhà cung cấp mail (tự host hay dùng Google/Microsoft) — cả hai giúp khoanh vùng hạ tầng mà không chạm host nào.',
@@ -604,14 +604,14 @@ export default [
       },
       {
         id: 'read_note',
-        description: 'Đọc ghi chú đã lưu để hiểu cần làm gì tiếp với CVE vừa lộ',
-        match: /^cat\s+.*cve-followup\.txt/,
+        description: 'Đọc lại ghi chú services đã lưu để đối chiếu version với CVE vừa lộ',
+        match: /^cat\s+.*services\.txt/,
       },
     ],
     hints: [
       'nmap có một bộ script chuyên đi dò lỗ hổng đã biết, không chỉ liệt kê thông tin chung.',
       'Dùng `nmap --script vuln -p139,445,3306 10.10.14.55` để chạy hết script nhóm "vuln".',
-      'Kết quả báo `smb-vuln-cve-2017-7494` VULNERABLE trên Samba — đây chính là CVE khớp với version 4.11.6 đã thấy ở bài banner grab trước.',
+      'Kết quả báo VULNERABLE trên Samba với mã CVE-2017-7494 — đối chiếu lại version đã ghi bằng `cat /home/hacker/services.txt`.',
     ],
     debrief: [
       'NSE chia script theo category (default, vuln, exploit, safe, intrusive...); category "vuln" gom các script chuyên kiểm tra một CVE cụ thể đã biết — nhanh hơn tra CVE tay từng version.',
@@ -728,7 +728,7 @@ export default [
     ],
     hints: [
       'Nmap có cả một nhóm flag để "đi nhẹ nói khẽ": làm chậm tốc độ, vỡ gói tin, và giả nhiều IP nguồn.',
-      'Chậm lại: `nmap -T1 10.10.14.55` (T0 paranoid còn chậm hơn). Vỡ gói: thêm `-f`.',
+      'Chậm lại: `nmap -T1 10.10.14.55` (T0 paranoid còn chậm hơn). Vỡ gói: `nmap -f 10.10.14.55`.',
       'Trộn nguồn: `nmap -D RND:5 10.10.14.55` sinh 5 IP giả ngẫu nhiên trộn cùng IP thật, khiến log SOC khó biết ai là kẻ quét thật.',
     ],
     debrief: [

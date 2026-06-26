@@ -47,7 +47,7 @@ export default [
     hints: [
       'Ping gửi ICMP echo request đến host; nếu nhận reply là host còn sống, không reply là offline hoặc firewall chặn.',
       'Dùng `ping mail.acme-corp.com` và chờ 3-4 reply, rồi Ctrl+C để dừng.',
-      'Để ý TTL (time to live) quảng đường mà packet phải đi; thời gian (ms) báo độ trễ mạng.',
+      'Gõ `ping mail.acme-corp.com` để xem kết quả, sau đó `cat ping-note.txt` để đọc ghi chú giải thích ý nghĩa của nó.',
     ],
     debrief: [
       'Ping là công cụ recon đầu tiên: trả lời ba câu hỏi: (1) host còn sống? (2) tất cả gói đều đến được (0% loss) hay mất một số? (3) độ trễ bao lâu? — từ đó sơ bộ đánh giá tình trạng.',
@@ -170,8 +170,8 @@ export default [
     ],
     hints: [
       'Mỗi kiểu record DNS chứa thông tin khác: A là IPv4, AAAA là IPv6, MX là mail, TXT là thỏa thuận tiêu chuẩn (SPF/DKIM).',
-      'Dùng `dig domain A`, `dig domain AAAA`, `dig domain MX`, `dig domain TXT` để lấy từng loại.',
-      'Nếu record không tồn tại, dig sẽ báo "NODATA" hoặc "NXDOMAIN"; nếu NODATA có nghĩa domain tồn tại nhưng loại record đó chưa có.',
+      'Dùng `dig shop.acme-corp.com A`, `dig shop.acme-corp.com AAAA`, `dig shop.acme-corp.com MX`, `dig shop.acme-corp.com TXT` để lấy từng loại.',
+      'Gõ lần lượt: `dig shop.acme-corp.com a`, rồi `dig shop.acme-corp.com aaaa`, rồi `dig shop.acme-corp.com mx`, rồi `dig shop.acme-corp.com txt`. Nếu record không tồn tại, dig sẽ báo "NODATA" hoặc "NXDOMAIN".',
     ],
     debrief: [
       'A record là tâm DNS: ánh xạ tên thành IPv4. AAAA là tương lai (IPv6) — thiếu nó không phải lỗi, chỉ là chưa setup IPv6.',
@@ -227,8 +227,8 @@ export default [
     ],
     hints: [
       'nslookup + tên miền dùng resolver mặc định; nslookup + tên miền + name server query trực tiếp NS đó.',
-      'Query trực tiếp NS hay để debug DNS caching/propagation: resolver ISP cache cũ nhưng NS gốc biết record mới nhất.',
-      'host command kết hợp A+MX ra một dòng, nhanh hơn dig nhưng ít tùy chọn.',
+      'Dùng `nslookup shop.acme-corp.com` cho resolver mặc định; thêm tên NS vào cuối để query trực tiếp NS gốc.',
+      'Gõ `nslookup shop.acme-corp.com`, rồi `nslookup shop.acme-corp.com ns1.digitalocean.com`, rồi `host shop.acme-corp.com` để so sánh cả ba.',
     ],
     debrief: [
       'DNS layered caching: resolver ISP cache kết quả từ NS gốc. Nếu record vừa đổi, resolver cache cũ nhưng NS gốc biết cái mới — query NS trực tiếp để verify đổi đã live hay chưa.',
@@ -295,7 +295,7 @@ export default [
     hints: [
       'curl -v in request + response header để thấy đầy đủ giao thức; curl -I chỉ lấy header; curl -L theo redirect.',
       'Dùng `curl -v http://10.10.14.55` để xem chi tiết. Nếu thấy `< HTTP/1.1 500` = server lỗi, đòi xem log app.',
-      'Chỉnh `User-Agent` hoặc header khác với `-H "Header: value"` để giả lập request khác (vd từ browser vs. bot).',
+      'Gõ lần lượt `curl -v http://10.10.14.55`, rồi `curl -I http://10.10.14.55` (chỉ header), rồi `curl -L http://10.10.14.55` (follow redirect).',
     ],
     debrief: [
       'Curl -v lộ toàn bộ giao thức: DNS resolution, TCP handshake, TLS handshake (nếu HTTPS), HTTP request line + headers, response headers + body. Hữu ích khi debug "tại sao server trả lạ?" hoặc "redirect đi đâu?".',
@@ -356,8 +356,8 @@ export default [
     ],
     hints: [
       'ss (socket statistics) mạnh hơn netstat cũ; -t (TCP), -u (UDP), -l (LISTEN), -p (process), -n (numeric port).',
-      'Dùng `ss -tulpn` để xem mọi port listening kèm PID; `ss -anp` để xem toàn bộ socket kèm LISTEN + ESTABLISHED.',
-      'Để ý cột "Local Address:Port" — bind 127.0.0.1 chỉ localhost vào được; 0.0.0.0 = mọi interface vào được. Cột Process = tiến trình nào giữ cổng.',
+      'Dùng `ss -tulpn` để xem mọi port listening kèm PID; `netstat -tulpn` cho kết quả tương tự bằng tool cũ.',
+      'Gõ `ss -tulpn`, rồi `netstat -tulpn` để so sánh, rồi `ss -an` để xem cả socket ESTABLISHED (client đang nói chuyện).',
     ],
     debrief: [
       'ss/netstat là công cụ enum đầu tiên: liệt kê mọi port mở và tiến trình đứng sau. attacker dùng để map dịch vụ; defender dùng để phát hiện port lạ/malware. Biết port nào mở = nửa đầu của công cuộc khai thác.',
@@ -408,8 +408,8 @@ export default [
     ],
     hints: [
       'lsof (list open files) không chỉ file — còn socket. lsof -i :8000 xem cổng 8000 đang bị process nào dùng.',
-      'Dùng `lsof -i :8000` để thấy PID; rồi `kill -9 <PID>` để kill. Hoặc kết hợp: `kill $(lsof -t -i :8000)`.',
-      'lsof -p <PID> để thấy tất cả file/socket mà process đó mở; hữu ích khi debug resource leak hoặc file handle exhaustion.',
+      'Dùng `lsof -i :8000` để thấy PID (ở đây là 5500); rồi `lsof -p 5500` để xem hết socket process đó mở.',
+      'PID chiếm port là 5500. Gõ `lsof -p 5500` để xem chi tiết, rồi `kill -9 5500` để kill và giải phóng port.',
     ],
     debrief: [
       'lsof -i là công cụ enum mạnh: không chỉ xem port mở mà còn xem ai mở, PID nào, file descriptor (fd) mấy. "LISTEN" = port chờ, "ESTABLISHED" = client kết nối.',
@@ -477,7 +477,7 @@ export default [
     hints: [
       'ip addr xem interface + IP hiện tại. ip route xem bảng định tuyến. ifconfig cũ hơn ip nhưng vẫn dùng được.',
       'Dùng `ip addr` hoặc `ip a` để xem IP. `ip route` hay `ip r` để xem route. Default gateway (`via ...`) là nơi gửi packet khi không biết chính xác đích.',
-      'Có nhiều interface = machine là middle node, có thể dùng nó để pivot tới mạng nội bộ khác (attacker perspective).',
+      'Gõ `ip addr`, rồi `ip route`, rồi thử lệnh cũ hơn `ifconfig` để so sánh — cả ba cho thông tin tương tự.',
     ],
     debrief: [
       'ip addr + ip route = bản đồ mạng của host: biết nó kết nối cái gì, gateway tới đâu, có route gì bất thường.',
@@ -537,9 +537,9 @@ export default [
       },
     ],
     hints: [
-      'iptables -L liệt kê rule chi tiết (chain, target, port); ufw status ngắn gọn hơn.',
+      'Dùng `iptables -L -n` liệt kê rule chi tiết (chain, target, port); `ufw status` ngắn gọn hơn.',
       'Policy DROP = chặn hết by default, chỉ ALLOW cái nào được ACCEPT; Policy ACCEPT = cho hết, chỉ chặn cái DROP.',
-      'Dùng `ufw allow 8000/tcp` để add rule allow port 8000; `ufw delete allow 8000` để xoá rule.',
+      'Gõ `iptables -L -n`, rồi `ufw status` để xem rule nào chặn port 8000, rồi `ufw allow 8000/tcp` để mở nó.',
     ],
     debrief: [
       'iptables là máy móc thực (netfilter kernel module); ufw/firewalld là giao diện chân thành hơn trên top. iptables raw output phức tạp nhưng mạnh, ufw dễ đọc nhưng ít tuỳ chọn.',
@@ -594,7 +594,7 @@ export default [
     hints: [
       'tcpdump capture packet trực tiếp; -w file.pcap ghi pcap format để mở bằng Wireshark; -A xem payload ascii.',
       'Dùng `tcpdump -i eth0 tcp port 443` để capture chỉ HTTPS. `tcpdump -A -i eth0 tcp port 443` để thấy payload.',
-      'File pcap có thể mở bằng Wireshark GUI hoặc xem bằng tcpdump lại: `tcpdump -r capture.pcap`.',
+      'Gõ `tcpdump -i eth0 tcp port 443`, rồi `tcpdump -A -i eth0 tcp port 443`, rồi `tcpdump -w capture.pcap` để ghi ra file phân tích bằng Wireshark.',
     ],
     debrief: [
       'Tcpdump capture at thấp (kernel level) nên thấy tất cả traffic, kể cả HTTPS payload (encrypted, nhưng header/metadata decrypt được).',
@@ -696,7 +696,7 @@ export default [
     hints: [
       'MAC = địa chỉ layer 2 (Ethernet); ARP = giao thức dịch IP sang MAC trên subnet local.',
       'Dùng `ip link` xem MAC của mình; `arp -a` hoặc `ip neigh` xem ARP table (IP và MAC tương ứng trên mạng).',
-      'Nếu 2 IP khác nhau cùng MAC = ARP spoofing (nhân vật xấu); hoặc bond/tun interface (nhân vật tốt). Ping + tcpdump để xác nhận.',
+      'Nếu 2 IP khác nhau cùng MAC = nghi ngờ ARP spoofing. Gõ `ping 10.0.0.120` để xác nhận máy đó còn phản hồi từ MAC nào.',
     ],
     debrief: [
       'ARP là Layer 2 broadcast protocol không có authentication: ai cũng có thể trả lời "IP X có MAC là Y" — nơi cư trú của ARP spoofing.',
@@ -746,8 +746,8 @@ export default [
     ],
     hints: [
       'curl -i in header kèm body; curl -I chỉ header; curl -L tự follow redirect.',
-      'Dùng `curl -i http://public-api.acme.internal` để xem 301 + Location header; `dig` để xác nhận domain khác là legitimate hay giả.',
-      'Redirect từ nội bộ (.internal) tới external domain = gợi ý dùng cloud provider; nếu Location là IP nghi ngờ = possible attack.',
+      'Dùng `curl -i http://public-api.acme.internal` để xem 301 + Location header; `curl -L http://public-api.acme.internal` để follow redirect tới đích cuối.',
+      'Gõ `curl -L http://public-api.acme.internal` rồi `dig api.cloud-provider.com` để xác nhận domain đích là legitimate hay giả.',
     ],
     debrief: [
       'HTTP redirect được dùng nhiều: tải cân bằng (load balancer redirect tới backend), external SaaS (redirect tới cloud provider), hay cache (redirect tới CDN).',
@@ -799,8 +799,8 @@ export default [
     ],
     hints: [
       'Cache-Control header điều khiển caching: max-age=X (cache X giây), no-cache (validate lại với server), no-store (không cache).',
-      'Dùng `curl -i URL` để xem header; `curl -H "Cache-Control: no-cache" URL` để bắt buộc revalidate.',
-      'Static asset (JS, CSS, img) thường cache lâu; dynamic content (API) không cache hoặc cache ngắn. File lớn = cache lâu để tiết kiệm bandwidth; file nhỏ = cache ngắn để update nhanh.',
+      'Dùng `curl -i https://static.acme.com/app.js` để xem header; `curl -H "Cache-Control: no-cache" https://static.acme.com/app.js` để bắt buộc revalidate.',
+      'Gõ `curl -i https://static.acme.com/app.js`, rồi `curl -H "Cache-Control: no-cache" https://static.acme.com/app.js`, rồi `cat cache-note.txt` để đọc ghi chú giải thích.',
     ],
     debrief: [
       'HTTP caching quy tắc: Client cache theo Cache-Control + browser cache policy; CDN cache theo Vary/ETag; origin cache theo Redis/memcached. Mỗi lớp khác nhau → debug caching phức tạp.',
@@ -848,9 +848,9 @@ export default [
       },
     ],
     hints: [
-      'Quy trình diagnose network: DNS → ping (host sống?) → traceroute (đường đi?) → HTTP (cache OK? response time?) → tcpdump (packet loss?)',
-      'Công cụ cần thiết: dig/nslookup/host (DNS), ping/traceroute/mtr (routing), ss/netstat/lsof (port), curl -v/-i (HTTP), tcpdump (packet), iptables/ufw (firewall).',
-      'Từng công cụ mục đích khác: ping xác nhận online; traceroute tìm hop chậm; curl xem HTTP behavior; tcpdump xem packet; ss xem port listening; iptables xem firewall rule.',
+      'Quy trình diagnose network: DNS → ping (host sống?) → traceroute (đường đi?) → HTTP (cache OK? response time?) → đọc khuyến cáo.',
+      'Bắt đầu với `dig api.acme-corp.com` hoặc `ping api.acme-corp.com`; sau đó `traceroute api.acme-corp.com` để xem hop nào chậm; rồi `curl -v api.acme-corp.com` để xem HTTP behavior.',
+      'Gõ lần lượt: `ping api.acme-corp.com`, `traceroute api.acme-corp.com`, `curl -v api.acme-corp.com`, rồi `cat diagnosis.txt` để đọc khuyến cáo tổng kết.',
     ],
     debrief: [
       'Network problem không bao giờ đơn giản — lớp lồng lớp: DNS → IP routing → TCP → HTTP → caching → application logic. Diagnose từ bottom-up: DNS → ping → traceroute → port → HTTP → packet; nó sẽ lộ tầng nào bị vấn đề.',
