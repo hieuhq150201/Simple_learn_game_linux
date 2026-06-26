@@ -1,6 +1,7 @@
 import MissionProgress from './MissionProgress.jsx';
 import HintSystem from './HintSystem.jsx';
 import DebriefPanel from './DebriefPanel.jsx';
+import TermsPanel from './TermsPanel.jsx';
 
 // Sidebar hiện story + checklist + nút hint cho mission đang chơi
 export default function MissionPanel({
@@ -25,6 +26,8 @@ export default function MissionPanel({
         <h4 className="text-gray-500 text-xs uppercase tracking-wide mb-2">Checklist</h4>
         <MissionProgress steps={mission.steps} completedSteps={completedSteps} />
       </div>
+
+      <TermsPanel terms={mission.terms} />
 
       {missionCompleted ? (
         <div className="animate-celebrate-in border border-green-400/40 rounded-md p-3 text-center">

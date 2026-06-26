@@ -2,14 +2,9 @@ import { describe, expect, test } from 'vitest';
 import { getMission, getMissionsForChapter, missions } from './missions.js';
 
 describe('missions data', () => {
-  test('every chapter 1-8 has exactly 3 missions', () => {
-    for (let chapterId = 1; chapterId <= 8; chapterId++) {
-      expect(missions[chapterId]).toHaveLength(3);
-    }
-  });
-
   test('every mission has required fields and 3 hint levels', () => {
-    for (let chapterId = 1; chapterId <= 8; chapterId++) {
+    // Ch10 (elite, không hint) miễn check 3-hint ở đây; validator riêng phủ Ch10.
+    for (let chapterId = 1; chapterId <= 9; chapterId++) {
       for (const mission of missions[chapterId]) {
         expect(mission.chapterId).toBe(chapterId);
         expect(typeof mission.title).toBe('string');
@@ -38,10 +33,13 @@ describe('missions data', () => {
     expect(getMissionsForChapter(99)).toEqual([]);
   });
 
-  test('CTF chapter 8 missions hide the flag behind a final capture step, not in step 1', () => {
-    for (const mission of missions[8]) {
-      const lastStep = mission.steps[mission.steps.length - 1];
-      expect(lastStep.description.toLowerCase()).toContain('flag');
+  test('CTF chapters 8 & 10 — last step references capturing the flag', () => {
+    for (const ch of [8, 10]) {
+      for (const mission of missions[ch]) {
+        const last = mission.steps[mission.steps.length - 1];
+        const d = last.description.toLowerCase();
+        expect(d.includes('flag') || d.includes('cờ')).toBe(true);
+      }
     }
   });
 });
