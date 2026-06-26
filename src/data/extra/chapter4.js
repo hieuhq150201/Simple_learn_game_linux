@@ -61,7 +61,7 @@ export default [
     hints: [
       '~/.ssh/config có format: `Host myserver` rồi các dòng `HostName`, `User`, `IdentityFile`, `Port`, indented bằng space.',
       'Dùng `cat > ~/.ssh/config` hoặc `vim ~/.ssh/config` để tạo/sửa. Format cơ bản:\nHost myserver\n  HostName example.com\n  User deploy\n  IdentityFile ~/.ssh/id_ed25519\n  Port 2222',
-      'Test bằng `ssh myserver` hoặc `ssh -v myserver` (verbose) để xem cách nó parse config.',
+      'Xem lại config đã lưu: `cat ~/.ssh/config`. Test bằng `ssh myserver` hoặc `ssh -v myserver` (verbose) để xem cách nó parse config.',
     ],
     debrief: [
       '~/.ssh/config là nơi cấu hình SSH hành động như "profile": mỗi Host block ghi IdentityFile, Port, User, Proxy, KeepAlive — biến SSH từ tool khó chịu thành dễ dùng.',
@@ -140,14 +140,14 @@ export default [
     story:
       'Cần lấy một file từ server production về máy local để phân tích. Không thể mở SFTP interactive được vì script chạy tự động. Dùng scp để copy file trong một lệnh — dạng remote shell variant của cp.',
     steps: [
-      { id: 'scp_from_remote', description: 'Copy file từ remote server về local', match: /^scp\b.*deploy@.*:.*\/(config|backup).*\s+\.|\s+~/ },
-      { id: 'scp_recursive', description: 'Copy thư mục đệ quy từ remote (-r)', match: /^scp\s+-r\b.*(deploy|prod).*:.*logs\s+.*/ },
-      { id: 'verify_local', description: 'Xác nhận file/thư mục đã copy về local', match: /^ls\s+(-la|.*-l)?\s*(config|logs|backup)/ },
+      { id: 'scp_from_remote', description: 'Copy file từ remote server về local', match: /^scp\b.*deploy@\S*:\S*\.(conf|bak)\S*\s+\.?/ },
+      { id: 'scp_recursive', description: 'Copy thư mục đệ quy từ remote (-r)', match: /^scp\s+-r\b.*(deploy|prod).*:.*logs\b.*/ },
+      { id: 'verify_local', description: 'Xác nhận file/thư mục đã copy về local', match: /^ls\b(\s+-\w*)*\s*(\.|~)?\/?(config|logs|backup)?\S*\s*$/ },
     ],
     hints: [
-      'SCP syntax: `scp <source> <dest>`. Remote: `scp user@host:/path/file .` (về local), hoặc `scp file user@host:/path/` (đẩy lên).',
+      'SCP syntax: `scp <source> <dest>`. Remote: `scp deploy@prod:/etc/app.conf .` (về local), hoặc `scp file deploy@prod:/path/` (đẩy lên).',
       'Dùng `-r` để copy thư mục đệ quy: `scp -r deploy@prod:/var/log/app logs-backup/`.',
-      'Kết hợp alias SSH: `scp prod:/var/log/app.log .` (nếu đã cấu hình Host prod trong ~/.ssh/config).',
+      'Xác nhận đã copy về: `ls` (hoặc `ls -la`) ở thư mục hiện tại để thấy file/thư mục vừa nhận.',
     ],
     debrief: [
       'SCP lợi dụng SSH auth nên không cần riêng password/key; nó là wrapper xung quanh SSH — giống như `rcp` xưa nhưng an toàn hơn nhờ mã hoá.',
@@ -208,7 +208,7 @@ export default [
     hints: [
       'Audit trước: `cat ~/.ssh/authorized_keys` để thấy loại key (ssh-rsa, ssh-ed25519), hoặc `ssh-keygen -l -f authorized_keys`.',
       'Tạo + copy mới: `ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_new` (tên khác để tránh ghi đè), rồi `ssh-copy-id -i ~/.ssh/id_ed25519_new user@server`.',
-      'Test ngay: `ssh -i ~/.ssh/id_ed25519_new user@server` để confirm nó hoạt động. Chỉ xoá key cũ sau khi confirm key mới 100% việc.',
+      'Test ngay: `ssh -i ~/.ssh/id_ed25519_new user@server` để confirm nó hoạt động. Chỉ xoá key cũ sau khi confirm key mới 100% việc, và backup trước: `cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.bak`.',
     ],
     debrief: [
       'Upgrade key trong production là thao tác nguy hiểm: nếu xoá key cũ trước khi test key mới, bạn khóa chính mình ra ngoài máy chủ. Luôn có 2 key hoạt động trong 1-2 ngày trước khi xoá key cũ.',
@@ -232,9 +232,9 @@ export default [
       'Sếp yêu cầu tất cả SSH phải không cho phép đăng nhập trực tiếp bằng root — kẻ tấn công sẽ phải brute-force username trước, mới login được, thêm một hàng rào. Mày sửa /etc/ssh/sshd_config để disable root login và giới hạn MaxAuthTries.',
     steps: [
       { id: 'view_sshd_config', description: 'Xem nội dung /etc/ssh/sshd_config hiện tại', match: /^cat\s+\/etc\/ssh\/sshd_config|^grep\b.*(PermitRootLogin|MaxAuthTries|Port)\s+\/etc\/ssh\/sshd_config/ },
-      { id: 'edit_sshd', description: 'Sửa sshd_config để disable root login và/hoặc giảm MaxAuthTries', match: /^(sed|vim|nano|echo|tee)\b.*sshd_config|^nano\s+\/etc\/ssh\/sshd_config/ },
-      { id: 'verify_syntax', description: 'Kiểm tra syntax của sshd_config sửa xong', match: /^sshd\s+(-t|-T)\b|^sudo\s+sshd\s+-t/ },
-      { id: 'restart_sshd', description: 'Restart sshd để apply config mới', match: /^(systemctl|service)\s+(restart|reload)\s+sshd|^sudo\s+service\s+sshd\s+restart/ },
+      { id: 'edit_sshd', description: 'Sửa sshd_config để disable root login và/hoặc giảm MaxAuthTries', match: /^(sudo\s+)?(sed|vim|nano|echo|tee)\b.*sshd_config/ },
+      { id: 'verify_syntax', description: 'Kiểm tra syntax của sshd_config sửa xong', match: /^(sudo\s+)?sshd\s+(-t|-T)\b/ },
+      { id: 'restart_sshd', description: 'Restart sshd để apply config mới', match: /^(sudo\s+)?(systemctl|service)\s+(restart|reload)\s+sshd/ },
     ],
     hints: [
       'Xem config: `cat /etc/ssh/sshd_config | grep -E "(PermitRootLogin|MaxAuthTries|Port)"` (hoặc dùng `sshd -T` để xem values kế thừa/mặc định).',
@@ -269,7 +269,7 @@ export default [
     ],
     hints: [
       'Status: `sudo systemctl status fail2ban`. List jails: `sudo fail2ban-client status`; xem chi tiết sshd: `sudo fail2ban-client status sshd`.',
-      'Config nằm ở `/etc/fail2ban/jail.conf` (mặc định) hoặc `/etc/fail2ban/jail.local` (custom). Sshd jail thường enable mặc định khi fail2ban cài.',
+      'Xem config: `cat /etc/fail2ban/jail.conf` (mặc định) hoặc `/etc/fail2ban/jail.local` (custom). Sshd jail thường enable mặc định khi fail2ban cài.',
       'Khi fail2ban phát hiện >5 failed login SSH từ cùng IP trong 10 phút, nó chặn IP đó vĩnh viễn (hoặc tạm 1 giờ tùy config). Xem log: `sudo tail -f /var/log/fail2ban.log`.',
     ],
     debrief: [
@@ -300,7 +300,7 @@ export default [
     ],
     hints: [
       'Cài: `pip install ansible` hoặc `apt install ansible`. Version: `ansible --version`.',
-      'Inventory cơ bản (file `hosts`):\n[prod]\nweb1.example.com\nweb2.example.com\n[db]\ndb.example.com\nhoặc dùng động từ cloud API.',
+      'Đã có sẵn file inventory ở home — xem bằng `cat inventory`:\n[prod]\nweb1.example.com\nweb2.example.com\n[db]\ndb.example.com\n(hoặc tự tạo bằng `echo "web1.example.com" > inventory`).',
       'Ping test: `ansible all -m ping` (check toàn bộ host), hoặc `ansible prod -m ping` (chỉ group prod). Shell command: `ansible all -m shell -a "whoami"`.',
     ],
     debrief: [
@@ -360,13 +360,13 @@ export default [
       { id: 'key_audit', description: 'Kiểm tra loại/độ dài SSH key hiện tại (authorized_keys, user key)', match: /^ssh-keygen\b.*-l\b|^cat\s+~?\.ssh\/authorized_keys/ },
       { id: 'sshd_config_check', description: 'Audit sshd_config: PermitRootLogin, MaxAuthTries, Port, Protocol, other hardening', match: /^cat\s+\/etc\/ssh\/sshd_config|^sshd\s+-T\b/ },
       { id: 'fail2ban_status', description: 'Kiểm tra fail2ban status, list jail, xem có block IP nào không', match: /^(sudo\s+)?fail2ban-client\s+(status|list-jails)/ },
-      { id: 'tunnel_check', description: 'Xem có SSH tunnel nào đang chạy (netstat/ss để list)', match: /^(netstat|ss)\s+.*-a.*|^ps\s+aux.*ssh.*-L|-R|-D/ },
+      { id: 'tunnel_check', description: 'Xem có SSH tunnel nào đang chạy (netstat/ss để list)', match: /^(netstat|ss)\b.*-\w*[atn]|^ps\s+aux.*ssh.*(-L|-R|-D)/ },
       { id: 'report', description: 'Tạo hoặc xem báo cáo audit (summary findings + recommendations)', match: /^cat\s+.*audit|^echo\s+.*ssh.*audit/ },
     ],
     hints: [
       'Key audit: `ssh-keygen -l -f ~/.ssh/authorized_keys`, `ssh-keygen -l -f ~/.ssh/id_*` (check loại key, bit length).',
-      'sshd_config: `sshd -T` (xem all settings kế thừa), hoặc `grep -E "(PermitRootLogin|Port|MaxAuthTries|Protocol)" /etc/ssh/sshd_config`. Fail2ban: `fail2ban-client status sshd`.',
-      'Báo cáo: summarize findings (key type, hardening status, fail2ban active), risks (RSA-1024, PermitRootLogin yes), recommendations (upgrade key, disable root, set MaxAuthTries 3).',
+      'sshd_config: `sshd -T` (xem all settings kế thừa), hoặc `grep -E "(PermitRootLogin|Port|MaxAuthTries|Protocol)" /etc/ssh/sshd_config`. Fail2ban: `fail2ban-client status sshd`. Tunnel đang mở: `netstat -tulpna | grep ssh` hoặc `ss -tulpna`.',
+      'Báo cáo: ghi findings ra file rồi xem lại, vd `echo "ssh audit: key ed25519 OK, root login disabled, fail2ban active" > audit-report.txt` rồi `cat audit-report.txt`. Tổng hợp risks (RSA-1024, PermitRootLogin yes), recommendations (upgrade key, disable root, set MaxAuthTries 3).',
     ],
     debrief: [
       'Audit SSH là checklist cơ bản trong bất kỳ security assessment nào: phương tiện access từ xa, thường bị attacker target trước. Checkpoints: key type/length → sshd hardening → monitoring (fail2ban) → tunneling (allowlist, logging).',

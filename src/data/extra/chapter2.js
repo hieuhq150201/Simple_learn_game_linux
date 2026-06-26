@@ -78,7 +78,7 @@ export default [
       'Một process treo cứng không chịu chết. Mày phải hiểu sự khác nhau giữa "xin nó tự thoát" và "bắn thẳng vào đầu", rồi chọn đúng tín hiệu để xử lý.',
     steps: [
       { id: 'kill_list', description: 'Xem danh sách các tín hiệu có thể gửi (kill -l)', match: /^kill\s+-l\b/, output: ' 1) SIGHUP   2) SIGINT   3) SIGQUIT   9) SIGKILL  15) SIGTERM\n17) SIGCHLD 18) SIGCONT 19) SIGSTOP' },
-      { id: 'kill_term', description: 'Gửi SIGTERM xin tiến trình tự thoát êm (kill -15)', match: /^kill\s+(-15|-TERM)\s+\d+/, output: '(SIGTERM gui toi PID — tien trinh nhan tin hieu, don dep roi tu thoat neu no "ngoan")' },
+      { id: 'kill_term', description: 'Gửi SIGTERM xin tiến trình tự thoát êm (kill -15)', match: /^kill\s+(-15|-TERM)\s+\S+/, output: '(SIGTERM gui toi PID — tien trinh nhan tin hieu, don dep roi tu thoat neu no "ngoan")' },
       { id: 'kill_force', description: 'Tiến trình lì -> ép chết bằng SIGKILL (kill -9)', match: /^(kill\s+-9|kill\s+-KILL|pkill\s+-9)\b/, output: '[1]+  Killed   (SIGKILL khong the bi bat hay bo qua — kernel giet ngay lap tuc)' },
     ],
     hints: [
@@ -200,7 +200,7 @@ export default [
     steps: [
       { id: 'top_batch', description: 'Chạy top chỉ 1 iteration rồi thoát để dễ phân tích (-b -n 1)', match: /^top\s+.*-b\b.*-n\s+1|^top\s+.*-n\s+1.*-b/, output: 'top - 12:00:00 up 10 days,  3:42,  1 user,  load average: 0.82, 0.75, 0.71\nTasks: 120 total,   1 running, 119 sleeping,   0 stopped,   0 zombie\n%Cpu(s):  5.8 us,  2.3 sy,  0.0 ni, 90.5 id,  1.4 wa,  0.0 hi,  0.0 si,  0.0 st\nMem :   7872.6 total,  6123.4 used,  1749.2 free,   412.1 buffers\nSwap:   2048.0 total,   984.5 used,  1063.5 free,  2567.8 cached' },
       { id: 'top_filter', description: 'Lưu output top vào file rồi grep để tìm process cao hơn 5% CPU', match: /^top\s+.*-b\b.*-n\s+1.*>.*\S+|>.*\S+.*top\s+-b/, output: '(snapshot top đã lưu vào file)' },
-      { id: 'grep_cpu', description: 'Dùng grep lọc những dòng có %CPU cao trên file snapshot', match: /^grep\b.*[5-9][0-9]|^grep\b.*%CPU/, output: 'www-data  1455  15.2  2.0 412000 80000 S    12:00   0:45 /usr/bin/php-fpm\nmysql     902   8.1 18.4 1820000 740000 S 12:00   1:22 /usr/sbin/mysqld' },
+      { id: 'grep_cpu', description: 'Dùng grep lọc những dòng có %CPU cao trên file snapshot', match: /^grep\b.*\[0-9\]|^grep\b.*[5-9][0-9]|^grep\b.*%CPU|^top\b.*\|\s*grep\b/, output: 'www-data  1455  15.2  2.0 412000 80000 S    12:00   0:45 /usr/bin/php-fpm\nmysql     902   8.1 18.4 1820000 740000 S 12:00   1:22 /usr/sbin/mysqld' },
     ],
     hints: [
       'Top chạy liên tục, nhưng cần -b (batch) và -n 1 để chạy 1 lần rồi thoát để lưu.',
@@ -264,7 +264,7 @@ export default [
       { id: 'reload', description: 'Reload .bashrc để áp dụng thay đổi (source ~/.bashrc)', match: /^source\s+.*\.bashrc|^\.\s+\S*\.bashrc/, output: '(biến từ .bashrc giờ được load vào shell hiện tại)' },
     ],
     hints: [
-      'env/printenv xem biến hiện tại; export giữ biến ở shell hiện tại; ~/.bashrc giữ nó lâu dài.',
+      'Gõ `env` hoặc `printenv` xem biến hiện tại; export giữ biến ở shell hiện tại; ~/.bashrc giữ nó lâu dài.',
       'Gõ `export MY_VAR=hello` rồi `echo $MY_VAR` để test; rồi `echo \'export MY_VAR=hello\' >> ~/.bashrc` để lưu vĩnh viễn.',
       'Sau khi sửa .bashrc, gõ `source ~/.bashrc` hoặc mở shell mới để load; test bằng `echo $MY_VAR`.',
     ],
@@ -319,7 +319,7 @@ export default [
     story:
       'App lỗi "Too many open files", nhưng dev nói code không mở file đâu. Maye phải dùng lsof để xem process nào mở file/socket quá nhiều, có file nào ghost (đã xoá nhưng còn bị giữ).',
     steps: [
-      { id: 'lsof_count', description: 'Đếm bao nhiêu file process nào đang mở (lsof -p <PID> | wc -l)', match: /^lsof\s+-p\s+\d+|lsof.*wc\s+-l/, output: '243   # process 1234 mở 243 file descriptors — quá nhiều, có leak!' },
+      { id: 'lsof_count', description: 'Đếm bao nhiêu file process nào đang mở (lsof -p <PID> | wc -l)', match: /^lsof\s+-p\s+\S+|lsof.*wc\s+-l/, output: '243   # process 1234 mở 243 file descriptors — quá nhiều, có leak!' },
       { id: 'lsof_deleted', description: 'Tìm file đã xoá nhưng process vẫn giữ mở (lsof | grep deleted)', match: /^lsof\b.*grep.*deleted|lsof\b.*(deleted|REG)/, output: 'java      1234 root  123u   REG  8,1  5242880 4567890 /var/log/old.log (deleted)  <- still takes 5MB on disk!' },
       { id: 'lsof_socket', description: 'Xem toàn bộ socket/connection mạng của process (lsof -i)', match: /^lsof\s+-i\b|^lsof\s+-p\s+\d+\s+-a\s+-i/, output: 'nginx     1455 root  51u  IPv4 123456      0t0  TCP *:80 (LISTEN)\nphp-fpm   1500 www-data  42u IPv4 234567 0t0  TCP 127.0.0.1:9000 (ESTABLISHED)' },
     ],
@@ -350,13 +350,13 @@ export default [
       'Process dùng database, kill ngay là dữ liệu hỏng. Mày phải biết tín hiệu SIGTERM để cho nó dọn dẹp, chờ một chút, rồi mới SIGKILL nếu nó lì. Viết một script auto-graceful-kill.',
     steps: [
       { id: 'find_proc', description: 'Tìm process theo tên (pgrep hoặc ps grep)', match: /^(pgrep|ps\b.*grep)\s+\S+/, output: '1234   # PID của app.jar' },
-      { id: 'sigterm', description: 'Gửi SIGTERM (tín hiệu nhân đạo) và chờ nó tự thoát (kill -TERM)', match: /^kill\s+(-TERM|-15)\s+\d+/, output: '(app.jar nhận SIGTERM, dọn dẹp kết nối database rồi thoát)' },
-      { id: 'wait_check', description: 'Chờ 5 giây rồi kiểm tra process còn sống hay không (ps -p)', match: /^sleep\s+[0-9]+\s*&&.*ps\s+-p|^ps\s+-p\s+\d+/, output: '(nếu process biến mất, kill thành công; nếu vẫn còn -> chuyển sang SIGKILL)' },
-      { id: 'sigkill', description: 'Nếu SIGTERM không phát huy, ép chết bằng SIGKILL (kill -9)', match: /^kill\s+(-9|-KILL)\s+\d+/, output: '[1]-  Killed    (SIGKILL gửi tới, process chết ngay, không kịp dọn dẹp)' },
+      { id: 'sigterm', description: 'Gửi SIGTERM (tín hiệu nhân đạo) và chờ nó tự thoát (kill -TERM)', match: /^kill\s+(-TERM|-15)\s+\S+/, output: '(app.jar nhận SIGTERM, dọn dẹp kết nối database rồi thoát)' },
+      { id: 'wait_check', description: 'Chờ 5 giây rồi kiểm tra process còn sống hay không (ps -p)', match: /^sleep\s+[0-9]+\s*&&.*ps\s+-p|^ps\s+-p\s+\S+/, output: '(nếu process biến mất, kill thành công; nếu vẫn còn -> chuyển sang SIGKILL)' },
+      { id: 'sigkill', description: 'Nếu SIGTERM không phát huy, ép chết bằng SIGKILL (kill -9)', match: /^kill\s+(-9|-KILL)\s+\S+/, output: '[1]-  Killed    (SIGKILL gửi tới, process chết ngay, không kịp dọn dẹp)' },
     ],
     hints: [
       'Cách lịch sự: SIGTERM (15) trước, chờ vài giây, rồi SIGKILL (9) nếu vẫn còn.',
-      'Dùng `pgrep app` để lấy PID; `kill -TERM $(pgrep app)` gửi SIGTERM; chờ; `kill -9 $(pgrep app)` nếu còn.',
+      'Dùng `pgrep app` để lấy PID; `kill -TERM $(pgrep app)` gửi SIGTERM; chờ rồi `ps -p $(pgrep app)` xem nó còn sống không; `kill -9 $(pgrep app)` nếu còn.',
       'Script: `kill -TERM $PID && sleep 5 && kill -9 $PID 2>/dev/null` (nếu -9 thất bại, process đã chết là bình thường).',
     ],
     debrief: [
@@ -411,7 +411,7 @@ export default [
       'Server lạ mắt. Một service ngốn RAM tới 90%, swap đầy, database chậm, FD leak. Mày phải dùng hết kỹ năng Chương 2: xác định process nào gây rối, sao và kiểm tra. Chạy lệnh, lưu report, rồi kill nó đúng cách.',
     steps: [
       { id: 'ps_sorted', description: 'Liệt kê process xếp theo RAM (ps -o pid,user,%mem,vsz,rss,comm --sort=-%mem | head -10)', match: /^ps\s+.*--sort.*-?%mem|^ps\s+.*--sort.*-?rss/, output: 'PID USER     %MEM   VSZ    RSS COMMAND\n1200 www-data 45.2 2048000 1843200 node\n1234 mysql    32.1 1600000 1310720 mysqld\n5000 root      8.5  512000 350000 backup.sh' },
-      { id: 'lsof_pid', description: 'Kiểm tra FD của process nào chiếm RAM nhiều nhất (lsof -p <PID> | wc -l)', match: /^lsof\s+-p\s+\d+.*wc\s+-l|^lsof\s+-p\s+\d+/, output: '1245    # node (PID 1200) đang mở 1245 FD — gấp đôi limit thông thường!' },
+      { id: 'lsof_pid', description: 'Kiểm tra FD của process nào chiếm RAM nhiều nhất (lsof -p <PID> | wc -l)', match: /^lsof\s+-p\s+\S+/, output: '1245    # node (PID 1200) đang mở 1245 FD — gấp đôi limit thông thường!' },
       { id: 'free_check', description: 'Kiểm tra RAM, swap, disk còn lại (free -h && df -h)', match: /^free\s+-h.*&&.*df\s+-h|^(free|df)\s+.*-h/, output: 'Mem:  7.7Gi  7.2Gi  512Mi  (RAM cạn)\nSwap: 2.0Gi  1.9Gi  100Mi  (swap cạn)\n/dev/sda1: 49G 48G 1G (disk cạn)' },
       { id: 'graceful_kill', description: 'Gửi SIGTERM rồi chờ, nếu không chịu thì SIGKILL', match: /^kill\s+.*1200|pkill\s+node|kill\s+(-TERM|-15).*\d+/, output: '(node process nhận SIGTERM, nhưng không thoát — chuyển SIGKILL)' },
       { id: 'report', description: 'Lưu report điều tra vào file', match: /^(echo|cat|tee).*>.*report|>.*incident\.log/, output: '(đã lưu báo cáo sự cố vào incident.log để gửi sếp)' },

