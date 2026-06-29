@@ -18,7 +18,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'git@github.com:hieuhq150201/Simple_learn_game_linux.git',
+                        credentialsId: 'github-ssh-key'
+                    ]]
+                ])
             }
         }
 
