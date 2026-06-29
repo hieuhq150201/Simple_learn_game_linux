@@ -1,7 +1,7 @@
 // Sidebar chọn mission trong 1 chương, hiện check khi đã hoàn thành
 export default function Sidebar({ chapter, missionList, activeMissionId, isMissionCompleted, onSelectMission, onBack }) {
   return (
-    <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-56">
+    <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-full md:w-56 md:shrink-0">
       <button
         onClick={onBack}
         className="flex items-center justify-center gap-1.5 w-full text-sm text-gray-200 border border-term-border rounded-md px-3 py-2 hover:border-indigo-400/60 hover:text-indigo-400 transition-colors"
