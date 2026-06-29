@@ -3,6 +3,7 @@ export default function Header({ title, progressPercent }) {
   return (
     <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-term-border min-w-0">
       <div className="flex items-center gap-2 min-w-0">
+        <img src="/logo.svg" className="w-7 h-7 shrink-0" alt="" />
         <span className="text-indigo-400 font-bold tracking-wide shrink-0">[HACKER PATH]</span>
         <span className="text-gray-400 text-sm truncate">{title}</span>
       </div>
