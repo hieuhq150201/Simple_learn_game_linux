@@ -385,3 +385,43 @@ Mỗi lệnh = 1 API call. Cần debounce, và có thể cache response cho các
    - Trước khi nói "hoàn thành": chạy `npx vitest run` + cả 10 chương qua `playtest-chapter` + chạy thử UI. Có bằng chứng rồi mới khẳng định.
 
 **Hai gate bắt buộc cho mọi thay đổi mission:** `scripts/check-chapter.mjs <N>` (cấu trúc) **VÀ** `scripts/playtest-chapter.mjs <N>` (chơi được).
+
+**4. UI/UX check bằng Playwright — KHÔNG chỉ nhìn code.**
+   - Dự án đã có `playwright` trong `devDependencies`. Viết script inline (`check-ui.mjs` ở project root) để screenshot từng màn và kiểm tra tự động, xong thì xóa.
+   - Script mẫu chuẩn:
+     ```js
+     import { chromium } from 'playwright';
+     // chạy từ project root để playwright tìm được node_modules
+     const browser = await chromium.launch();
+     const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+     page.on('pageerror', e => console.log('JS ERROR:', e.message));
+     await page.goto('http://localhost:5173', { waitUntil: 'networkidle' });
+     await page.screenshot({ path: '/tmp/screen.png', fullPage: false });
+     // ... interact, screenshot, check
+     await browser.close();
+     ```
+   - Dismiss welcome modal bằng `page.evaluate(() => { [...document.querySelectorAll('button')].find(b => b.textContent.includes('Bắt đầu Chương 1'))?.click(); })` — KHÔNG dùng locator click (modal overlay chặn).
+   - Breakpoints bắt buộc check: **1440px, 1024px, 768px, 375px** — đo `document.body.scrollWidth > window.innerWidth + 5` cho mỗi màn.
+   - Sidebar có nhiều mission → PHẢI có `overflow-y-auto flex-1 min-h-0` trên list container, và `shrink-0` trên các element cố định (back button, title). Không có thì mission cuối bị tràn ra ngoài viewport mà không cuộn được.
+   - Các pattern gây overflow mobile thường gặp:
+     - `grid-cols-[Xpx_1fr]` hard-code → đổi sang `flex-col md:grid md:grid-cols-[Xpx_1fr]`
+     - `whitespace-nowrap` trong element ngang → xóa hoặc thêm `flex-wrap`
+     - `w-XX` cứng trên sidebar → `w-full md:w-XX md:shrink-0`
+     - Header không có `min-w-0` + `truncate` → chữ tràn ra ngoài ở mobile
+
+**5. CI/CD dùng Node + npm, không phải bun.**
+   - Dự án dùng `npm` (có `package-lock.json`, không có `bun.lockb`). CI/CD phải dùng:
+     ```yaml
+     - uses: actions/setup-node@v4
+       with: { node-version: 22, cache: npm }
+     - run: npm ci
+     ```
+   - CI pipeline (`.github/workflows/ci.yml`) phải chạy cả hai gate mission trước khi build:
+     ```yaml
+     - name: Validate missions
+       run: for ch in 1 2 3 4 5 6 7 8 9 10; do node scripts/check-chapter.mjs $ch; done
+     - name: Test playability
+       run: for ch in 1 2 3 4 5 6 7 8 9 10; do node scripts/playtest-chapter.mjs $ch; done
+     - run: npm test
+     - run: npm run build
+     ```
