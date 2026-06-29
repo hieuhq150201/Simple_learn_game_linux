@@ -49,7 +49,9 @@ pipeline {
 
         stage('Deploy') {
             when {
-                branch 'main'
+                expression {
+                    return env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main'
+                }
             }
             steps {
                 sh 'cp -r dist/. ${WEBROOT}/'
@@ -59,10 +61,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline passed — branch: ${env.BRANCH_NAME}"
+            echo "Pipeline passed — branch: ${env.GIT_BRANCH}"
         }
         failure {
-            echo "Pipeline failed — branch: ${env.BRANCH_NAME}"
+            echo "Pipeline failed — branch: ${env.GIT_BRANCH}"
         }
         always {
             cleanWs()
