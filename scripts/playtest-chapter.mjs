@@ -13,7 +13,7 @@ import { HOME } from '../src/utils/localShell.js';
 void pathToFileURL; void path;
 
 const N = Number(process.argv[2]);
-if (!N || N < 1 || N > 10) { console.error('Dùng: node scripts/playtest-chapter.mjs <1..10>'); process.exit(1); }
+if (!N || N < 1 || N > 14) { console.error('Dùng: node scripts/playtest-chapter.mjs <1..14>'); process.exit(1); }
 
 function extractCmds(hints) {
   const out = [];
@@ -37,7 +37,8 @@ for (const m of list) {
   const stuck = playMission(m);
   if (!stuck.length) continue;
   if (m.noHints) { noHintReports.push({ id: m.id, title: m.title, stuck }); continue; }
-  failures.push({ id: m.id, title: m.title, base: m.id <= 3, stuck });
+  // Ch1-10: bài gốc id<=3 do opus xử (không gate). Ch11+: TẤT CẢ mission đều gate.
+  failures.push({ id: m.id, title: m.title, base: N <= 10 && m.id <= 3, stuck });
 }
 
 const extraFails = failures.filter((f) => !f.base);

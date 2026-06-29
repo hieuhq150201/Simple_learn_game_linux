@@ -40,6 +40,7 @@ import extra7 from './extra/chapter7.js';
 import extra8 from './extra/chapter8.js';
 import extra9 from './extra/chapter9.js';
 import extra10 from './extra/chapter10.js';
+import extra11 from './extra/chapter11.js';
 
 // Mỗi step có:
 //   - description: hiển thị trong checklist
@@ -1040,7 +1041,7 @@ export const missions = {
 };
 
 // Gộp mission bổ sung vào từng chương (giữ thứ tự: bài gốc trước, bài mới sau)
-const _extras = { 1: extra1, 2: extra2, 3: extra3, 4: extra4, 5: extra5, 6: extra6, 7: extra7, 8: extra8, 9: extra9, 10: extra10 };
+const _extras = { 1: extra1, 2: extra2, 3: extra3, 4: extra4, 5: extra5, 6: extra6, 7: extra7, 8: extra8, 9: extra9, 10: extra10, 11: extra11 };
 for (const ch of Object.keys(_extras)) {
   const list = _extras[ch];
   if (Array.isArray(list) && list.length) missions[ch] = [...(missions[ch] || []), ...list];
