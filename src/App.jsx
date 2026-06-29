@@ -35,9 +35,9 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
   const hintsUsedCount = entries.filter((e) => e.command?.trim() === 'hint').length;
 
   return (
-    <div className="flex flex-col md:grid md:grid-cols-[280px_1fr] gap-4 flex-1 min-h-0">
+    <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-4 lg:flex-1 lg:min-h-0">
       <div className="flex flex-col gap-3 min-h-0">
-        <div className="flex-1 min-h-0">
+        <div className="lg:flex-1 lg:min-h-0">
           <MissionPanel
             mission={mission}
             completedSteps={completedSteps}
@@ -50,7 +50,9 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
         </div>
         <CommandCheatsheet />
       </div>
-      <Terminal entries={entries} commandHistory={commandHistory} onSubmit={handleSubmit} isLoading={isLoading} />
+      <div className="min-h-[420px] lg:min-h-0">
+        <Terminal entries={entries} commandHistory={commandHistory} onSubmit={handleSubmit} isLoading={isLoading} />
+      </div>
     </div>
   );
 }
@@ -68,7 +70,7 @@ function ChapterScreen({ chapterId, progress, onBack }) {
   const nextMission = missionList.find((m) => m.id === activeMissionId + 1);
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+    <div className="flex flex-col lg:flex-row gap-4 lg:flex-1 lg:min-h-0">
       <Sidebar
         chapter={chapter}
         missionList={missionList}
@@ -138,7 +140,7 @@ export default function App() {
         progressPercent={progressPercent}
       />
 
-      <main className="flex-1 min-h-0 p-6 flex flex-col gap-4">
+      <main className="flex-1 min-h-0 p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto lg:overflow-hidden">
         <BadgePanel badges={badges} stats={progress.progress.stats} />
         {activeChapterId ? (
           <ChapterScreen chapterId={activeChapterId} progress={progress} onBack={() => setActiveChapterId(null)} />
