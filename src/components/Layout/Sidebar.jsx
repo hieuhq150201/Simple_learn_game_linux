@@ -1,19 +1,19 @@
 // Sidebar chọn mission trong 1 chương, hiện check khi đã hoàn thành
 export default function Sidebar({ chapter, missionList, activeMissionId, isMissionCompleted, onSelectMission, onBack }) {
   return (
-    <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-56">
+    <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-full md:w-56 md:shrink-0 min-h-0">
       <button
         onClick={onBack}
-        className="flex items-center justify-center gap-1.5 w-full text-sm text-gray-200 border border-term-border rounded-md px-3 py-2 hover:border-indigo-400/60 hover:text-indigo-400 transition-colors"
+        className="flex items-center justify-center gap-1.5 w-full text-sm text-gray-200 border border-term-border rounded-md px-3 py-2 hover:border-indigo-400/60 hover:text-indigo-400 transition-colors shrink-0"
       >
         ← Về bản đồ chương
       </button>
 
-      <h2 className="text-gray-100 font-semibold text-sm">
+      <h2 className="text-gray-100 font-semibold text-sm shrink-0">
         Chương {chapter.id}: {chapter.title}
       </h2>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0">
         {missionList.map((mission) => {
           const done = isMissionCompleted(chapter.id, mission.id);
           const active = mission.id === activeMissionId;

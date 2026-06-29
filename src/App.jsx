@@ -35,7 +35,7 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
   const hintsUsedCount = entries.filter((e) => e.command?.trim() === 'hint').length;
 
   return (
-    <div className="grid grid-cols-[280px_1fr] gap-4 flex-1 min-h-0">
+    <div className="flex flex-col md:grid md:grid-cols-[280px_1fr] gap-4 flex-1 min-h-0">
       <div className="flex flex-col gap-3 min-h-0">
         <div className="flex-1 min-h-0">
           <MissionPanel
@@ -68,7 +68,7 @@ function ChapterScreen({ chapterId, progress, onBack }) {
   const nextMission = missionList.find((m) => m.id === activeMissionId + 1);
 
   return (
-    <div className="flex gap-4 flex-1 min-h-0">
+    <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
       <Sidebar
         chapter={chapter}
         missionList={missionList}
