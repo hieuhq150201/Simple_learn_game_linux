@@ -40,7 +40,12 @@
       "Bash(echo \"EXIT: $?\")",
       "Bash(echo \"---EXIT:$?---\")",
       "Bash(echo \"check-chapter exit:$?\")",
-      "Bash(echo \"playtest exit:$?\")"
+      "Bash(echo \"playtest exit:$?\")",
+      "Bash(npm test *)",
+      "Bash(git commit *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(agent-browser open *)",
+      "Bash(agent-browser screenshot *)"
     ]
   }
 }
