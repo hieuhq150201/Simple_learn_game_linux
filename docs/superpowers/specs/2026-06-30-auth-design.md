@@ -48,7 +48,7 @@
 | Password | `bcrypt` (rounds = 12) | Standard, không dùng argon2 vì không cần level đó |
 | Validation | `class-validator` + `class-transformer` | NestJS built-in, ValidationPipe global |
 | Config | `@nestjs/config` + Zod | Env vars type-safe, validate lúc startup (fail fast nếu thiếu biến) |
-| Logging | **nestjs-pino** + `pino-pretty` | Nhanh hơn Winston, structured JSON logs, redact sensitive fields |
+| Logging | **nestjs-pino** + `pino-pretty` | Nhanh hơn Winston, structured JSON logs, redact sensitive fields. `pino-pretty` chỉ dùng ở dev — prod dùng raw JSON cho log aggregator |
 | Security headers | `helmet` | CSP, X-Frame-Options, HSTS — bật global |
 | Rate limiting | `@nestjs/throttler` | Chống brute force `/auth/login`, `/auth/register` |
 | Cookie | `cookie-parser` | Parse httpOnly cookie chứa refresh token |
@@ -68,8 +68,8 @@
   → Next.js middleware tự đọc cookie ở mọi request — không cần lưu JS memory
 
 [Mỗi request tới NestJS API]
-  → Next.js Server Action / Route Handler đính access_token vào header
-  → hoặc client gọi trực tiếp với credentials: 'include' (cookie tự gửi kèm)
+  → cookie tự động gửi kèm nhờ credentials: 'include' (httpOnly — JS không đọc được)
+  → NestJS đọc access_token từ cookie header, không cần Authorization: Bearer
 
 [Khi access_token hết hạn]
   → Next.js middleware intercept 401, tự gọi POST /auth/refresh
@@ -82,6 +82,15 @@
 [Logout]
   → server xóa refresh_token khỏi DB + clear cả hai cookie
 ```
+
+### Cookie cross-origin (quan trọng)
+
+`game/` và `game-api/` deploy trên 2 domain khác nhau → cookie mặc định bị chặn bởi browser. Bắt buộc:
+
+- **NestJS** set cookie với `sameSite: 'none'` + `secure: true` (chỉ hoạt động trên HTTPS)
+- **NestJS** `enableCors({ credentials: true, origin: FRONTEND_URL })`
+- **Frontend** mọi fetch call dùng `credentials: 'include'`
+- **Dev local**: dùng proxy trong Next.js config (`rewrites`) để tránh cross-origin, hoặc chạy cả hai trên cùng domain (e.g. `localhost` với port khác nhau — lúc này `sameSite: 'lax'` là đủ)
 
 ### Guest mode (không đăng nhập)
 
@@ -112,7 +121,7 @@ model Progress {
 
 model RefreshToken {
   id        String   @id @default(uuid())
-  token     String   @unique
+  tokenHash String   @unique  // lưu bcrypt hash, không phải plain token
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
@@ -185,8 +194,8 @@ game-api/
 │   └── main.ts                         — helmet, CORS, cookie-parser, ValidationPipe, Swagger
 ├── prisma/
 │   └── schema.prisma
-├── .env                                — DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, PORT
-├── .env.example                        — template commit lên repo
+├── .env                                — DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, PORT, FRONTEND_URL
+├── .env.example                        — template commit lên repo (không commit .env)
 └── package.json
 ```
 
@@ -305,7 +314,7 @@ Khi có nhu cầu giới hạn nội dung theo gói:
 - Frontend hiện lock icon + CTA upgrade trên các chương bị giới hạn
 - Tích hợp payment (Stripe hoặc tương đương) trong sprint riêng
 
-Schema hiện tại (`User.plan`) có thể thêm sau mà không cần refactor auth.
+Field `plan` có thể thêm vào model `User` sau mà không cần refactor auth.
 
 ---
 
