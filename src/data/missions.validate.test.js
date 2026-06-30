@@ -4,7 +4,7 @@ import { chapters } from './chapters.js';
 
 // Validator schema cho CẢ 14 chương — "hợp đồng" mọi mission phải tuân thủ.
 // Mỗi sub-agent chạy `npx vitest run -t "chapter N"` để verify chương mình tới khi xanh.
-const CHAPTER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const CHAPTER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
 describe('missions schema validation', () => {
   for (const ch of CHAPTER_IDS) {
