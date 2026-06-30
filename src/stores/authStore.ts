@@ -22,9 +22,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   fetchMe: async () => {
     try {
-      const data = await api.get('/auth/me')
-      if (data?.user) {
-        set({ user: data.user, isAuthenticated: true })
+      const data = await api.get('/users/me')
+      if (data?.id) {
+        set({ user: { id: data.id, email: data.email }, isAuthenticated: true })
       }
     } catch {
       // unauthenticated — silently ignore
@@ -35,8 +35,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true })
     try {
       const data = await api.post('/auth/login', { email, password })
-      if (!data?.user) throw new Error('Login failed')
-      set({ user: data.user, isAuthenticated: true })
+      if (!data?.id) throw new Error('Login failed')
+      set({ user: { id: data.id, email: data.email }, isAuthenticated: true })
     } finally {
       set({ isLoading: false })
     }
@@ -46,8 +46,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true })
     try {
       const data = await api.post('/auth/register', { email, password })
-      if (!data?.user) throw new Error('Register failed')
-      set({ user: data.user, isAuthenticated: true })
+      if (!data?.id) throw new Error('Register failed')
+      set({ user: { id: data.id, email: data.email }, isAuthenticated: true })
     } finally {
       set({ isLoading: false })
     }

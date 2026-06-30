@@ -21,21 +21,23 @@ async function fetchWithRefresh(input: RequestInfo, init?: RequestInit): Promise
   return res
 }
 
+const toJson = (r: Response) => (r.status === 204 || r.headers.get('content-length') === '0' ? null : r.json())
+
 export const api = {
   get: (path: string) =>
-    fetchWithRefresh(`${API_BASE}${path}`).then((r) => r.json()),
+    fetchWithRefresh(`${API_BASE}${path}`).then(toJson),
 
   post: (path: string, body?: unknown) =>
     fetchWithRefresh(`${API_BASE}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
-    }).then((r) => r.json()),
+    }).then(toJson),
 
   patch: (path: string, body?: unknown) =>
     fetchWithRefresh(`${API_BASE}${path}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
-    }).then((r) => r.json()),
+    }).then(toJson),
 }
