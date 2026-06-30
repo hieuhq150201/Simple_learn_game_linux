@@ -12,10 +12,29 @@
 
 | Repo | Vai trò | Stack |
 |------|---------|-------|
-| `game/` (repo hiện tại, migrate sang Next.js) | Frontend | Next.js + Tailwind + TypeScript |
-| `game-api/` (repo mới) | REST API backend | NestJS + TypeScript + PostgreSQL |
+| `game/` (repo hiện tại, migrate sang Next.js) | Frontend | Next.js + TypeScript + Tailwind + shadcn/ui |
+| `game-api/` (repo mới) | REST API backend | NestJS + TypeScript + PostgreSQL + Prisma |
 
-> **Note:** Codebase hiện tại (React + Vite) sẽ được migrate sang Next.js App Router. Auth system được thiết kế cho Next.js ngay từ đầu — không cần refactor sau.
+> **Note:** Codebase hiện tại (React + Vite) sẽ được migrate sang Next.js App Router. Auth system được thiết kế cho Next.js ngay từ đầu — không cần refactor sau. **Toàn bộ codebase dùng TypeScript** — không có file `.js` mới nào được tạo.
+
+### Frontend stack chi tiết
+
+| Layer | Thư viện | Lý do chọn |
+|-------|----------|------------|
+| Framework | Next.js 15 App Router | SSR, middleware auth, Server Components |
+| Language | TypeScript (strict) | Type-safe end-to-end |
+| Styling | Tailwind CSS | Giữ nguyên từ codebase hiện tại |
+| UI Components | **shadcn/ui** | Copy-paste, own the code, Radix UI primitives, Tailwind-native, dark mode built-in — không bị lock-in vào versioned package |
+| Client state | **Zustand** | ~3KB, simple API, stable với Next.js App Router — dùng cho auth state, UI state (modal open/close) |
+| Server state | **TanStack Query v6** | Caching, background sync, auto-refetch — dùng cho mọi API call tới NestJS (progress, user data) |
+| Forms | **React Hook Form + Zod** | Validation type-safe, ít re-render, chuẩn Next.js |
+| URL state | **nuqs** | Sync state với URL params khi cần (filter, pagination) |
+
+**Phân chia state rõ ràng:**
+- **Zustand**: `authStore` (user, isAuthenticated), `uiStore` (modal states, sidebar)
+- **TanStack Query**: mọi thứ fetch từ API — progress, user profile
+- **localStorage**: guest mode progress (giữ nguyên behavior hiện tại)
+- **URL (nuqs)**: chapter/mission hiện tại (deep-link được)
 
 ### Stack backend
 
@@ -155,55 +174,73 @@ game-api/
 
 ```
 game/
-├── middleware.ts                  — kiểm tra cookie, redirect nếu chưa login
+├── middleware.ts                   — Edge Runtime: kiểm tra cookie, redirect nếu chưa login
 ├── app/
 │   ├── (auth)/
-│   │   ├── login/page.tsx         — trang đăng nhập
-│   │   └── register/page.tsx      — trang đăng ký
+│   │   ├── login/page.tsx          — trang đăng nhập (shadcn Card + Form)
+│   │   └── register/page.tsx       — trang đăng ký
 │   ├── (game)/
-│   │   └── layout.tsx             — layout bọc các trang cần login
-│   └── layout.tsx                 — root layout, AuthProvider
+│   │   └── layout.tsx              — layout bọc trang cần login
+│   └── layout.tsx                  — root layout: QueryClientProvider + Providers
+├── stores/
+│   ├── authStore.ts                — Zustand: { user, isAuthenticated, login, logout }
+│   └── uiStore.ts                  — Zustand: { loginModalOpen, ... }
 ├── lib/
-│   └── api.ts                     — fetch wrapper tự gắn cookie, handle 401 refresh
-└── contexts/
-    └── AuthContext.tsx            — user state, login/logout actions
+│   ├── api.ts                      — fetch wrapper: tự gắn cookie, handle 401 → refresh
+│   └── queryClient.ts              — TanStack Query client config
+├── hooks/
+│   ├── useProgress.ts              — TanStack Query: fetch/mutate progress từ API
+│   └── useAuth.ts                  — wrapper tiện lợi quanh authStore
+└── components/ui/                  — shadcn/ui components (Button, Input, Card, Form...)
 ```
 
 ### middleware.ts
 
 Chạy trên mọi request ở Edge Runtime — kiểm tra cookie `access_token`:
-- Nếu hợp lệ → cho qua
-- Nếu hết hạn → gọi `/auth/refresh`, set cookie mới, retry
-- Nếu không có / refresh thất bại → redirect về `/login`
-- Route `/login`, `/register` luôn public (bypass middleware)
+- Hợp lệ → cho qua
+- Hết hạn → gọi `/auth/refresh`, set cookie mới, retry
+- Không có / refresh thất bại → redirect về `/login`
+- `/login`, `/register` luôn public
 
-### AuthContext
+### Zustand authStore
 
-Cung cấp cho toàn app:
-- `user` — `{ id, email }` hoặc `null` (guest)
-- `login(email, password)` → gọi API → server set cookie → fetch + merge progress
-- `register(email, password)` → tương tự login
-- `logout()` → gọi API → server clear cookie → clear local state
+```ts
+interface AuthState {
+  user: { id: string; email: string } | null
+  isAuthenticated: boolean
+  login: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
+}
+```
 
-Không cần lưu token trong state — cookie tự động gửi kèm mọi request.
+Không lưu token trong store — cookie tự động gửi kèm mọi request.
 
-### Sync progress
+### TanStack Query — progress sync
 
-Trong progress context — sau khi `completeMission()`:
-- Nếu user đang đăng nhập → gọi `PATCH /users/me/progress`
-- Nếu guest → chỉ lưu localStorage (behavior không đổi)
+```ts
+// fetch progress
+useQuery({ queryKey: ['progress'], queryFn: () => api.get('/users/me') })
+
+// sync sau khi complete mission
+useMutation({ mutationFn: (data) => api.patch('/users/me/progress', data) })
+```
+
+- Guest mode: TanStack Query disabled, dùng localStorage như hiện tại
+- Logged in: mỗi `completeMission()` trigger mutation lên server, cache tự invalidate
 
 ### Merge khi login
 
-1. Fetch progress từ server
+1. `authStore.login()` thành công → fetch progress từ server (TanStack Query)
 2. Merge với localStorage: union `completedMissions`, `stats` lấy max
-3. Lưu kết quả vào cả localStorage lẫn server
+3. Lưu kết quả lên server + cập nhật localStorage
 
-### UI cần thêm
+### UI cần thêm (shadcn/ui components)
 
-- `app/(auth)/login/page.tsx` — form email + password
-- `app/(auth)/register/page.tsx` — form tạo tài khoản
-- Header: hiện email + nút logout khi đã đăng nhập, nút "Đăng nhập" khi guest
+- `app/(auth)/login/page.tsx` — `Card` + `Form` + `Input` + `Button` từ shadcn
+- `app/(auth)/register/page.tsx` — tương tự, thêm confirm password
+- Validation: Zod schema + React Hook Form
+- Header: dropdown menu (shadcn `DropdownMenu`) hiện email + logout khi đã login
 
 ---
 
@@ -237,9 +274,17 @@ Schema hiện tại (`User.plan`) có thể thêm sau mà không cần refactor 
 
 ## 8. Out of Scope (sprint này)
 
-- Migration React → Next.js — sprint riêng, trước hoặc song song với auth
-- OAuth (Google / GitHub) — có thể thêm sau khi email/password stable
+- Migration React → Next.js — sprint riêng, **phải hoàn thành trước** khi implement auth
+- OAuth (Google / GitHub) — thêm sau khi email/password stable
 - Email verification
 - Forgot password / reset password flow
 - Admin dashboard
 - Payment / subscription
+
+---
+
+## 9. Thứ tự sprint đề xuất
+
+1. **Sprint 0** — Migration React + Vite → Next.js App Router (+ setup TypeScript strict, shadcn/ui, Zustand, TanStack Query)
+2. **Sprint 1** — Backend: `game-api/` NestJS scaffold + auth endpoints + Prisma schema
+3. **Sprint 2** — Frontend auth: login/register pages, middleware, authStore, progress sync
