@@ -1,11 +1,17 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
 
+interface TerminalInputProps {
+  onSubmit: (value: string) => void;
+  history: string[];
+  disabled: boolean;
+}
+
 // Input dòng lệnh với history điều hướng bằng mũi tên lên/xuống
-export default function TerminalInput({ onSubmit, history, disabled }) {
+export default function TerminalInput({ onSubmit, history, disabled }: TerminalInputProps): JSX.Element {
   const [value, setValue] = useState('');
-  const [historyIndex, setHistoryIndex] = useState(null);
-  const inputRef = useRef(null);
+  const [historyIndex, setHistoryIndex] = useState<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const composingRef = useRef(false); // đang ghép chữ bằng bộ gõ tiếng Việt (Telex/VNI)?
 
   useEffect(() => {
@@ -16,7 +22,7 @@ export default function TerminalInput({ onSubmit, history, disabled }) {
     if (!disabled) inputRef.current?.focus();
   }, [disabled]);
 
-  function handleKeyDown(e) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       // Khi đang gõ tiếng Việt, phím Enter đầu tiên chỉ để CHỐT chữ của bộ gõ — không submit lệnh.
       // Nếu không chặn, Enter vừa chốt IME vừa submit -> lệnh bị gửi/lặp 2 lần.

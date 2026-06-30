@@ -8,7 +8,7 @@ export const LINE_TYPES = {
 };
 
 // Phân loại 1 dòng output thô từ AI để áp màu — dựa trên prefix/từ khóa thường gặp trong bash
-export function classifyLine(line) {
+export function classifyLine(line: string): keyof typeof LINE_TYPES {
   const lower = line.toLowerCase();
   if (
     lower.startsWith('bash:') ||

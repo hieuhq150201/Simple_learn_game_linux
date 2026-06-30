@@ -1,6 +1,12 @@
 'use client'
+
+interface TermItem {
+  term: string;
+  def: string;
+}
+
 // Thuật ngữ kèm giải thích tiếng Việt cho mission; ẩn nếu mission chưa có terms
-export default function TermsPanel({ terms }) {
+export default function TermsPanel({ terms }: { terms?: TermItem[] | null }): JSX.Element | null {
   if (!terms || terms.length === 0) return null;
 
   return (

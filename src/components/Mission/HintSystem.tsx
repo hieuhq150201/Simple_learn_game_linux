@@ -1,6 +1,13 @@
 'use client'
+
+interface HintSystemProps {
+  onRequestHint: () => void;
+  hintsUsedCount: number;
+  maxHints: number;
+}
+
 // Nút hint hiển thị trong sidebar — bấm sẽ gửi lệnh `hint` vào terminal (3 cấp độ tăng dần)
-export default function HintSystem({ onRequestHint, hintsUsedCount, maxHints }) {
+export default function HintSystem({ onRequestHint, hintsUsedCount, maxHints }: HintSystemProps): JSX.Element {
   return (
     <button
       onClick={onRequestHint}

@@ -1,18 +1,19 @@
 'use client'
-import { classifyLine } from '../../utils/terminalColors.js';
+import { classifyLine } from '../../utils/terminalColors';
+import type { TerminalEntry } from './useTerminal';
 
 // Render 1 entry trong lịch sử terminal: prompt + lệnh, output (colored), explanation, hint
-const LINE_COLOR = {
+const LINE_COLOR: Record<string, string> = {
   default: 'text-green-400',
   error: 'text-red-400',
 };
 
-function OutputLine({ line }) {
+function OutputLine({ line }: { line: string }): JSX.Element {
   const type = classifyLine(line);
   return <div className={LINE_COLOR[type]}>{line}</div>;
 }
 
-export default function TerminalOutput({ entries }) {
+export default function TerminalOutput({ entries }: { entries: TerminalEntry[] }): JSX.Element {
   return (
     <div className="flex flex-col gap-1">
       {entries.map((entry) => (

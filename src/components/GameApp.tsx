@@ -4,8 +4,8 @@
 // the game is 100% client-side (terminal state, progress in localStorage).
 import dynamic from 'next/dynamic'
 
-const App = dynamic(() => import('../App.jsx'), { ssr: false })
+const App = dynamic(() => import('../App'), { ssr: false })
 
-export function GameApp() {
+export function GameApp(): JSX.Element {
   return <App />
 }

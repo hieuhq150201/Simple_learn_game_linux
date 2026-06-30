@@ -1,12 +1,13 @@
 'use client'
 import { useCallback, useState } from 'react';
+import type { Filesystem, FsNode } from '../utils/localShell';
 
 // Quản lý fake filesystem state cho 1 mission. localShell trả về fsUpdate khi lệnh
 // thay đổi filesystem (touch/mkdir/rm/redirect): map path -> node object | null (null = xoá).
-export function useFilesystem(initialFilesystem) {
-  const [filesystem, setFilesystem] = useState(initialFilesystem);
+export function useFilesystem(initialFilesystem: Filesystem) {
+  const [filesystem, setFilesystem] = useState<Filesystem>(initialFilesystem);
 
-  const applyUpdate = useCallback((filesystemUpdate) => {
+  const applyUpdate = useCallback((filesystemUpdate: Record<string, FsNode | null>) => {
     if (!filesystemUpdate || Object.keys(filesystemUpdate).length === 0) return;
     setFilesystem((prev) => {
       const next = { ...prev };

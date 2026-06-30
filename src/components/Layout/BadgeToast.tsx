@@ -1,6 +1,11 @@
 'use client'
+
+interface BadgeToastProps {
+  badge?: { emoji: string; name: string } | null;
+}
+
 // Toast tạm hiện khi vừa unlock 1 badge mới, tự ẩn sau vài giây
-export default function BadgeToast({ badge }) {
+export default function BadgeToast({ badge }: BadgeToastProps): JSX.Element | null {
   if (!badge) return null;
 
   return (

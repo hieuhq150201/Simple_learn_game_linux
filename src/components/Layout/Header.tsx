@@ -1,6 +1,12 @@
 'use client'
+
+interface HeaderProps {
+  title: string;
+  progressPercent: number;
+}
+
 // Header: tên app, tiêu đề màn hình hiện tại, progress bar tổng. Hoàn toàn offline — không cần API key.
-export default function Header({ title, progressPercent }) {
+export default function Header({ title, progressPercent }: HeaderProps): JSX.Element {
   return (
     <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-term-border min-w-0">
       <div className="flex items-center gap-2 min-w-0">

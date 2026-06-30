@@ -1,11 +1,19 @@
 'use client'
 import { useEffect, useRef } from 'react';
-import TerminalOutput from './TerminalOutput.jsx';
-import TerminalInput from './TerminalInput.jsx';
+import TerminalOutput from './TerminalOutput';
+import TerminalInput from './TerminalInput';
+import type { TerminalEntry } from './useTerminal';
+
+interface TerminalProps {
+  entries: TerminalEntry[];
+  commandHistory: string[];
+  onSubmit: (value: string) => void;
+  isLoading: boolean;
+}
 
 // Khung terminal UI: scroll output + input dòng lệnh, auto-scroll xuống cuối khi có entry mới
-export default function Terminal({ entries, commandHistory, onSubmit, isLoading }) {
-  const scrollRef = useRef(null);
+export default function Terminal({ entries, commandHistory, onSubmit, isLoading }: TerminalProps): JSX.Element {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });

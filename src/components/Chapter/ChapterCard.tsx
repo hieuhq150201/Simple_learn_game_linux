@@ -1,6 +1,16 @@
 'use client'
+
+type ChapterStatus = 'playable' | 'locked' | 'coming-soon';
+
+interface ChapterCardProps {
+  chapter: any;
+  status: ChapterStatus;
+  completedCount: number;
+  onSelect: (id: number) => void;
+}
+
 // Card hiển thị 1 chương trên ChapterMap; 3 trạng thái: playable / locked / coming-soon
-export default function ChapterCard({ chapter, status, completedCount, onSelect }) {
+export default function ChapterCard({ chapter, status, completedCount, onSelect }: ChapterCardProps): JSX.Element {
   const playable = status === 'playable';
 
   const containerClass =

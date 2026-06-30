@@ -1,6 +1,16 @@
 'use client'
+
+interface SidebarProps {
+  chapter: any;
+  missionList: any[];
+  activeMissionId: number | null;
+  isMissionCompleted: (chapterId: number, missionId: number) => boolean;
+  onSelectMission: (id: number) => void;
+  onBack: () => void;
+}
+
 // Sidebar chọn mission trong 1 chương, hiện check khi đã hoàn thành
-export default function Sidebar({ chapter, missionList, activeMissionId, isMissionCompleted, onSelectMission, onBack }) {
+export default function Sidebar({ chapter, missionList, activeMissionId, isMissionCompleted, onSelectMission, onBack }: SidebarProps): JSX.Element {
   return (
     <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-full lg:w-56 lg:shrink-0 min-h-0">
       <button

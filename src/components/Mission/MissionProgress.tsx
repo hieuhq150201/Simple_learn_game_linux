@@ -1,6 +1,17 @@
 'use client'
+
+interface MissionStep {
+  id: string;
+  description: string;
+}
+
+interface MissionProgressProps {
+  steps: MissionStep[];
+  completedSteps: Set<string>;
+}
+
 // Checklist các bước trong mission, tick khi AI báo step_completed
-export default function MissionProgress({ steps, completedSteps }) {
+export default function MissionProgress({ steps, completedSteps }: MissionProgressProps): JSX.Element {
   return (
     <ul className="flex flex-col gap-1.5">
       {steps.map((step) => {

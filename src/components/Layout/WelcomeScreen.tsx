@@ -1,6 +1,7 @@
 'use client'
+
 // Overlay hướng dẫn cho người dùng MỚI; onStart() đóng overlay + vào Chương 1
-export default function WelcomeScreen({ onStart }) {
+export default function WelcomeScreen({ onStart }: { onStart: () => void }): JSX.Element {
   const steps = [
     'Chọn 1 chương trên bản đồ.',
     'Đọc nhiệm vụ bên trái rồi GÕ LỆNH THẬT vào terminal bên phải.',

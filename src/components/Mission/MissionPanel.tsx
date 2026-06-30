@@ -1,8 +1,18 @@
 'use client'
-import MissionProgress from './MissionProgress.jsx';
-import HintSystem from './HintSystem.jsx';
-import DebriefPanel from './DebriefPanel.jsx';
-import TermsPanel from './TermsPanel.jsx';
+import MissionProgress from './MissionProgress';
+import HintSystem from './HintSystem';
+import DebriefPanel from './DebriefPanel';
+import TermsPanel from './TermsPanel';
+
+interface MissionPanelProps {
+  mission: any;
+  completedSteps: Set<string>;
+  hintsUsedCount: number;
+  onRequestHint: () => void;
+  missionCompleted: boolean;
+  onNextMission?: () => void;
+  onBackToMap?: () => void;
+}
 
 // Sidebar hiện story + checklist + nút hint cho mission đang chơi
 export default function MissionPanel({
@@ -13,7 +23,7 @@ export default function MissionPanel({
   missionCompleted,
   onNextMission,
   onBackToMap,
-}) {
+}: MissionPanelProps): JSX.Element {
   return (
     <div className="flex flex-col lg:h-full gap-4 p-4 border border-term-border rounded-lg bg-gray-950/60 lg:overflow-y-auto">
       <div>

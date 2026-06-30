@@ -1,8 +1,13 @@
 'use client'
 import { useState } from 'react';
 
+interface CommandItem {
+  cmd: string;
+  desc: string;
+}
+
 // Bảng tra lệnh cơ bản cho người chưa từng dùng terminal; tự chứa, collapse gọn
-const COMMANDS = [
+const COMMANDS: CommandItem[] = [
   { cmd: 'pwd', desc: 'In ra thư mục hiện tại đang đứng.' },
   { cmd: 'ls', desc: 'Liệt kê file & thư mục (thêm -la để xem chi tiết + file ẩn).' },
   { cmd: 'cd', desc: 'Đổi thư mục (cd .. lên 1 cấp, cd ~ về home).' },
@@ -20,7 +25,7 @@ const COMMANDS = [
   { cmd: 'exit', desc: 'Thoát mission, về bản đồ chương.' },
 ];
 
-export default function CommandCheatsheet() {
+export default function CommandCheatsheet(): JSX.Element {
   const [open, setOpen] = useState(false);
 
   return (
