@@ -8,13 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface HeaderProps {
   title: string;
   progressPercent: number;
 }
 
-// Header: tên app, tiêu đề màn hình hiện tại, progress bar tổng. Hoàn toàn offline — không cần API key.
 export default function Header({ title, progressPercent }: HeaderProps): JSX.Element {
   const { user, isAuthenticated, logout } = useAuthStore()
 
@@ -32,14 +32,20 @@ export default function Header({ title, progressPercent }: HeaderProps): JSX.Ele
         </div>
         <span className="text-xs text-gray-500">{progressPercent}%</span>
 
+        <ThemeToggle />
+
         {isAuthenticated && user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger
-              className="text-green-400 text-xs font-mono px-2 py-1 rounded hover:text-green-300 hover:bg-green-900/20 transition-colors"
-            >
+            <DropdownMenuTrigger className="text-green-400 text-xs font-mono px-2 py-1 rounded hover:text-green-300 hover:bg-green-900/20 transition-colors">
               [{user.email}]
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-gray-900 border-green-800">
+              <DropdownMenuItem
+                className="text-green-400 cursor-pointer hover:bg-gray-800"
+                render={<a href="/profile" />}
+              >
+                Trang cá nhân
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-red-400 cursor-pointer hover:bg-gray-800"
                 onClick={() => logout()}

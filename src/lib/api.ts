@@ -40,4 +40,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
     }).then(toJson),
+
+  delete: (path: string) =>
+    fetchWithRefresh(`${API_BASE}${path}`, { method: 'DELETE' }).then(toJson),
 }
