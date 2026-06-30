@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Hacker Path' }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={cn("font-sans", geist.variable)}>
+    <html lang="vi" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body>
         <Providers>{children}</Providers>
       </body>
