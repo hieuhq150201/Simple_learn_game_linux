@@ -85,6 +85,11 @@ export default function LoginPage() {
             >
               {isLoading ? 'Đang đăng nhập...' : '> ĐĂNG NHẬP'}
             </Button>
+            <div className="text-center mt-2">
+              <Link href="/forgot-password" className="text-green-600 text-xs hover:text-green-400 font-mono">
+                Quên mật khẩu?
+              </Link>
+            </div>
             <p className="text-center text-green-700 text-sm">
               Chưa có tài khoản?{' '}
               <Link href="/register" className="text-green-500 hover:underline">
