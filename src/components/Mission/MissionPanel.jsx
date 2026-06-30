@@ -14,7 +14,7 @@ export default function MissionPanel({
   onBackToMap,
 }) {
   return (
-    <div className="flex flex-col h-full gap-4 p-4 border border-term-border rounded-lg bg-gray-950/60 overflow-y-auto">
+    <div className="flex flex-col lg:h-full gap-4 p-4 border border-term-border rounded-lg bg-gray-950/60 lg:overflow-y-auto">
       <div>
         <h2 className="text-indigo-400 font-bold text-sm uppercase tracking-wide">Mission {mission.id}</h2>
         <h3 className="text-gray-100 font-semibold mt-1">{mission.title}</h3>

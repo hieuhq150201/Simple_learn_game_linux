@@ -91,6 +91,66 @@ export const chapters = [
     skills: ['Container escape', 'Binary exploitation (ret2win)', 'Full red-team chain', 'Không hint — elite only'],
     missionCount: 10,
   },
+  {
+    id: 11,
+    title: 'Cloud Security — AWS & GCP',
+    badge: '☁️',
+    story:
+      'Công ty target đã bê toàn bộ hạ tầng lên AWS và GCP. Không còn server vật lý để chọc — nhưng cloud có cả rừng cấu hình sai: bucket công khai, access key lộ trong code, metadata endpoint hớ hênh. Mày sẽ đi từ một cái tên miền tới quyền kiểm soát cả tài khoản đám mây.',
+    skills: [
+      'aws s3 — bucket công khai',
+      'IAM enum & privilege escalation',
+      'EC2 metadata SSRF (169.254.169.254)',
+      'Secrets Manager / SSM Parameter Store',
+      'gcloud / GCP service account',
+    ],
+    missionCount: 15,
+  },
+  {
+    id: 12,
+    title: 'Container & Kubernetes Security',
+    badge: '🐳',
+    story:
+      'Mày vừa RCE được vào một web app — nhưng nhận ra mình đang kẹt trong một container. Tường ngăn mỏng manh: một cái docker socket hớ, một capability thừa, một token service account là đủ để thoát ra host và chiếm cả cluster Kubernetes.',
+    skills: [
+      'Phát hiện & breakout container',
+      'Docker socket / privileged escape',
+      'K8s service account token',
+      'kubectl enum & secrets',
+      'Pod privileged → node',
+    ],
+    missionCount: 15,
+  },
+  {
+    id: 13,
+    title: 'Digital Forensics & Blue Team',
+    badge: '🔬',
+    story:
+      'Lần này mày đứng ở phía bên kia. SIEM vừa hú: một server production bị xâm nhập. Sếp cần biết kẻ tấn công vào bằng đường nào, làm gì, cắm persistence ở đâu, và lấy đi cái gì. Mày là người dựng lại toàn bộ hiện trường từ log, memory và pcap.',
+    skills: [
+      'Phân tích auth/web log',
+      'bash_history & web shell',
+      'Persistence (cron, authorized_keys)',
+      'pcap & memory forensics (volatility)',
+      'Dựng timeline + IOC',
+    ],
+    missionCount: 15,
+  },
+  {
+    id: 14,
+    title: 'Cryptography & Hash Cracking',
+    badge: '🔐',
+    story:
+      'Mày vớ được một đống hash, file mã hoá, và token ký yếu trong các chiến dịch trước. Giờ là lúc bẻ chúng: từ MD5 ngây thơ tới bcrypt, từ JWT secret yếu tới RSA modulus nhỏ. Mật mã sai cách là cánh cửa, và mày có chìa.',
+    skills: [
+      'hashcat / john the ripper',
+      'shadow / NTLM / bcrypt',
+      'zip2john / ssh2john',
+      'JWT secret cracking',
+      'Encoding chains & RSA yếu',
+    ],
+    missionCount: 15,
+  },
 ];
 
-export const PLAYABLE_CHAPTER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+export const PLAYABLE_CHAPTER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];

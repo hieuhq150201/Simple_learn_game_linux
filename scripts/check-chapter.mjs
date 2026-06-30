@@ -5,8 +5,8 @@ import path from 'node:path';
 import { chapters } from '../src/data/chapters.js';
 
 const N = Number(process.argv[2]);
-if (!N || N < 1 || N > 10) {
-  console.error('Dùng: node scripts/check-chapter.mjs <1..10>');
+if (!N || N < 1 || N > 14) {
+  console.error('Dùng: node scripts/check-chapter.mjs <1..14>');
   process.exit(1);
 }
 
@@ -16,7 +16,9 @@ if (!meta) {
   process.exit(1);
 }
 const target = meta.missionCount;
-const BASE = 3; // mỗi chương có 3 bài gốc (id 1-3) trong missions.js
+// Ch1-10: 3 bài gốc (id 1-3) nằm trong missions.js -> extra chỉ chứa id 4+.
+// Ch11+: TOÀN BỘ mission nằm trong extra/chapterN.js (id 1..missionCount), FS inline.
+const BASE = N >= 11 ? 0 : 3;
 const expectedExtra = target - BASE;
 
 const extraPath = path.resolve(process.cwd(), `src/data/extra/chapter${N}.js`);
@@ -28,10 +30,10 @@ if (!Array.isArray(extra)) {
   errs.push('default export không phải mảng');
 } else {
   if (extra.length !== expectedExtra) {
-    errs.push(`cần ${expectedExtra} bài extra (target ${target} - 3 gốc), đang có ${extra.length}`);
+    errs.push(`cần ${expectedExtra} bài (target ${target}${BASE ? ` - ${BASE} gốc` : ''}), đang có ${extra.length}`);
   }
   const ids = extra.map((m) => m.id);
-  const expectIds = Array.from({ length: expectedExtra }, (_, i) => i + 4); // 4..target
+  const expectIds = Array.from({ length: expectedExtra }, (_, i) => i + 1 + BASE); // (BASE+1)..target
   if (new Set(ids).size !== ids.length) errs.push(`id trùng: ${ids.join(',')}`);
   if (JSON.stringify(ids) !== JSON.stringify(expectIds)) {
     errs.push(`id phải liền mạch ${expectIds[0]}..${expectIds[expectIds.length - 1]}; đang là ${ids.join(',')}`);
@@ -65,4 +67,4 @@ if (errs.length) {
   for (const e of errs) console.error('  - ' + e);
   process.exit(1);
 }
-console.log(`✅ chapter ${N} OK: ${extra.length} bài extra (id 4..${target}), tổng ${target} bài.`);
+console.log(`✅ chapter ${N} OK: ${extra.length} bài (id ${BASE + 1}..${target}).`);
