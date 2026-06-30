@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/reset-password']
+// Only these pages redirect to / when already authenticated
+const AUTH_ONLY_PATHS = ['/login', '/register']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p))
   const token = request.cookies.get('access_token')?.value
 
-  if (!isPublic && !token) {
-    // không redirect — game là guest-accessible, chỉ block nếu route cần auth
-    return NextResponse.next()
-  }
-
-  // nếu đã login mà vào /login → redirect về /
-  if (isPublic && token) {
+  // nếu đã login mà vào /login hoặc /register → redirect về /
+  if (AUTH_ONLY_PATHS.some((p) => pathname.startsWith(p)) && token) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 

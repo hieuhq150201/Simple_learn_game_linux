@@ -1,18 +1,23 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/authStore'
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const { isAuthenticated, fetchMe } = useAuthStore()
+  const [checked, setChecked] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace('/login')
-    }
-  }, [isAuthenticated, isLoading, router])
+    // fetchMe on every full-page load; only then can we know if user is authed
+    fetchMe().finally(() => setChecked(true))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  if (!isAuthenticated) return null
+  useEffect(() => {
+    if (checked && !isAuthenticated) router.replace('/login')
+  }, [checked, isAuthenticated, router])
+
+  if (!checked || !isAuthenticated) return null
   return <>{children}</>
 }
