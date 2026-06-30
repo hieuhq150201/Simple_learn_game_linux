@@ -176,3 +176,4 @@ Khi backend thêm `plan` vào User:
 1. **Sprint 0** — Migration React + Vite → Next.js App Router (setup TS strict, shadcn/ui, Zustand, TanStack Query)
 2. **Sprint 1** — Backend `game-api/` hoàn thiện (song song hoặc trước)
 3. **Sprint 2** — Frontend auth: middleware, authStore, login/register pages, progress sync
+

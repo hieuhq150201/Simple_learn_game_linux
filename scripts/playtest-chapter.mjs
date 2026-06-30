@@ -7,8 +7,8 @@
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { missions } from '../src/data/missions.js';
-import { evaluateCommand, instantiateMission } from '../src/utils/missionEngine.js';
-import { HOME } from '../src/utils/localShell.js';
+import { evaluateCommand, instantiateMission } from '../src/utils/missionEngine.ts';
+import { HOME } from '../src/utils/localShell.ts';
 // chạm vào pathToFileURL/path để giữ import gọn nếu sau này cần
 void pathToFileURL; void path;
 
