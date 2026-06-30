@@ -19,7 +19,7 @@ const schema = z.object({
 })
 type FormData = z.infer<typeof schema>
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+import { api } from '@/lib/api'
 
 function ResetPasswordContent() {
   const router = useRouter()
@@ -37,19 +37,14 @@ function ResetPasswordContent() {
   }, [token, router])
 
   async function onSubmit(values: FormData) {
-    const res = await fetch(`${API_BASE}/auth/reset-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ token, newPassword: values.newPassword }),
-    })
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      form.setError('root', { message: (err as { message?: string })?.message ?? 'Token không hợp lệ hoặc đã hết hạn' })
-      return
+    try {
+      await api.post('/auth/reset-password', { token, newPassword: values.newPassword })
+      setDone(true)
+      setTimeout(() => router.push('/login'), 2000)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Token không hợp lệ hoặc đã hết hạn'
+      form.setError('root', { message: msg })
     }
-    setDone(true)
-    setTimeout(() => router.push('/login'), 2000)
   }
 
   return (

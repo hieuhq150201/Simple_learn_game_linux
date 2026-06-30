@@ -6,7 +6,7 @@ interface User {
   email: string
   displayName: string | null
   bio: string | null
-  avatarBase64: string | null
+  avatarUrl: string | null
 }
 
 interface AuthState {
@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             email: data.email,
             displayName: data.displayName ?? null,
             bio: data.bio ?? null,
-            avatarBase64: data.avatarBase64 ?? null,
+            avatarUrl: data.avatarUrl ?? null,
           },
           isAuthenticated: true,
         })
@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           email: data.email,
           displayName: data.displayName ?? null,
           bio: data.bio ?? null,
-          avatarBase64: data.avatarBase64 ?? null,
+          avatarUrl: data.avatarUrl ?? null,
         },
         isAuthenticated: true,
       })
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           email: data.email,
           displayName: data.displayName ?? null,
           bio: data.bio ?? null,
-          avatarBase64: data.avatarBase64 ?? null,
+          avatarUrl: data.avatarUrl ?? null,
         },
         isAuthenticated: true,
       })

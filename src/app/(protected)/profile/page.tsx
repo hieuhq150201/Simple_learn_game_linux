@@ -33,29 +33,6 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 
-// ── Avatar resize helper ────────────────────────────────────────────────────
-
-function resizeImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = 200
-      canvas.height = 200
-      const ctx = canvas.getContext('2d')!
-      const size = Math.min(img.width, img.height)
-      const sx = (img.width - size) / 2
-      const sy = (img.height - size) / 2
-      ctx.drawImage(img, sx, sy, size, size, 0, 0, 200, 200)
-      URL.revokeObjectURL(url)
-      resolve(canvas.toDataURL('image/jpeg', 0.8))
-    }
-    img.onerror = reject
-    img.src = url
-  })
-}
-
 // ── Page ────────────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
@@ -110,9 +87,18 @@ export default function ProfilePage() {
     setAvatarLoading(true)
     setAvatarError(null)
     try {
-      const avatarBase64 = await resizeImageToBase64(file)
-      await api.patch('/users/me/avatar', { avatarBase64 })
-      updateUser({ avatarBase64 })
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+      const res = await fetch(`${API_BASE}/users/me/avatar`, {
+        method: 'PATCH',
+        credentials: 'include',
+        body: formData,
+      })
+      if (!res.ok) throw new Error('Upload failed')
+      const data = await res.json()
+      updateUser({ avatarUrl: data.avatarUrl })
     } catch {
       setAvatarError('Không thể tải ảnh lên. Vui lòng thử lại.')
     } finally {
@@ -126,7 +112,7 @@ export default function ProfilePage() {
     setAvatarError(null)
     try {
       await api.delete('/users/me/avatar')
-      updateUser({ avatarBase64: null })
+      updateUser({ avatarUrl: null })
     } catch {
       setAvatarError('Không thể xóa ảnh. Vui lòng thử lại.')
     } finally {
@@ -188,13 +174,13 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle className="text-green-400 text-base">Ảnh đại diện</CardTitle>
             <CardDescription className="text-gray-400">
-              Ảnh sẽ được resize về 200×200 px
+              Ảnh sẽ được xử lý và tối ưu tự động
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center gap-6">
-            {user.avatarBase64 ? (
+            {user.avatarUrl ? (
               <img
-                src={user.avatarBase64}
+                src={user.avatarUrl ?? undefined}
                 alt="Avatar"
                 className="w-20 h-20 rounded-full object-cover border-2 border-green-800"
               />
@@ -220,7 +206,7 @@ export default function ProfilePage() {
               >
                 {avatarLoading ? 'Đang tải...' : 'Tải ảnh lên'}
               </Button>
-              {user.avatarBase64 && (
+              {user.avatarUrl && (
                 <Button
                   variant="destructive"
                   size="sm"

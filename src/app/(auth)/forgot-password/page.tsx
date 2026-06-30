@@ -10,23 +10,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { api } from '@/lib/api'
 
 const schema = z.object({ email: z.string().email('Email không hợp lệ') })
 type FormData = z.infer<typeof schema>
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false)
   const form = useForm<FormData>({ resolver: zodResolver(schema), defaultValues: { email: '' } })
 
   async function onSubmit(values: FormData) {
-    await fetch(`${API_BASE}/auth/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email: values.email }),
-    })
+    await api.post('/auth/forgot-password', { email: values.email })
     setSent(true) // always show success regardless of whether email exists
   }
 

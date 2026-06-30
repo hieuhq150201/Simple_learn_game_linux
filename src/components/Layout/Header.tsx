@@ -42,7 +42,7 @@ export default function Header({ title, progressPercent }: HeaderProps): JSX.Ele
             <DropdownMenuContent className="bg-gray-900 border-green-800">
               <DropdownMenuItem
                 className="text-green-400 cursor-pointer hover:bg-gray-800"
-                render={<a href="/profile" />}
+                render={<Link href="/profile" />}
               >
                 Trang cá nhân
               </DropdownMenuItem>
