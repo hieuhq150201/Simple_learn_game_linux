@@ -1,3 +1,4 @@
+'use client'
 // Header: tên app, tiêu đề màn hình hiện tại, progress bar tổng. Hoàn toàn offline — không cần API key.
 export default function Header({ title, progressPercent }) {
   return (

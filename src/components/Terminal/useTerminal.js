@@ -1,3 +1,4 @@
+'use client'
 import { useCallback, useRef, useState } from 'react';
 import { parseCommand } from '../../utils/commandParser.js';
 import { evaluateCommand } from '../../utils/missionEngine.js';

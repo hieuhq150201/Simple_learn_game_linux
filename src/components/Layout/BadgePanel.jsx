@@ -1,3 +1,4 @@
+'use client'
 // Hàng badge gamification + stats; nhận badges (mảng có flag unlocked) và stats từ useProgress
 export default function BadgePanel({ badges = [], stats = { commandsRun: 0, hintsUsed: 0 } }) {
   return (

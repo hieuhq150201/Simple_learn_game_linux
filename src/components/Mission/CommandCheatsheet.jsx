@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react';
 
 // Bảng tra lệnh cơ bản cho người chưa từng dùng terminal; tự chứa, collapse gọn

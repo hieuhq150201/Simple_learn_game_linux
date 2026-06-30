@@ -1,3 +1,4 @@
+'use client'
 import { chapters, PLAYABLE_CHAPTER_IDS } from '../../data/chapters.js';
 import ChapterCard from './ChapterCard.jsx';
 

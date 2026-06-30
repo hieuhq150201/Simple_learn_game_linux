@@ -1,3 +1,4 @@
+'use client'
 // Thuật ngữ kèm giải thích tiếng Việt cho mission; ẩn nếu mission chưa có terms
 export default function TermsPanel({ terms }) {
   if (!terms || terms.length === 0) return null;

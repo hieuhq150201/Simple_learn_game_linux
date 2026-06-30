@@ -1,3 +1,4 @@
+'use client'
 import { useCallback, useState } from 'react';
 import { badges, isBadgeUnlocked } from '../data/badges.js';
 import { chapters } from '../data/chapters.js';

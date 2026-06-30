@@ -1,3 +1,4 @@
+'use client'
 // Sidebar chọn mission trong 1 chương, hiện check khi đã hoàn thành
 export default function Sidebar({ chapter, missionList, activeMissionId, isMissionCompleted, onSelectMission, onBack }) {
   return (

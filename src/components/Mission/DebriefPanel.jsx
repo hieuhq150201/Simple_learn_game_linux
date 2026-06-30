@@ -1,3 +1,4 @@
+'use client'
 // Phân tích tư duy bảo mật sau khi hoàn thành mission; ẩn nếu mission chưa có debrief
 export default function DebriefPanel({ debrief }) {
   if (!debrief || debrief.length === 0) return null;

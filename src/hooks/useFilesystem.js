@@ -1,3 +1,4 @@
+'use client'
 import { useCallback, useState } from 'react';
 
 // Quản lý fake filesystem state cho 1 mission. localShell trả về fsUpdate khi lệnh

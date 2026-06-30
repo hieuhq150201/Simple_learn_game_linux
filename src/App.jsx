@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Header from './components/Layout/Header.jsx';
 import Sidebar from './components/Layout/Sidebar.jsx';

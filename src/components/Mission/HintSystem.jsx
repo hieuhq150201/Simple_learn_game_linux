@@ -1,3 +1,4 @@
+'use client'
 // Nút hint hiển thị trong sidebar — bấm sẽ gửi lệnh `hint` vào terminal (3 cấp độ tăng dần)
 export default function HintSystem({ onRequestHint, hintsUsedCount, maxHints }) {
   return (

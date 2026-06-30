@@ -1,3 +1,4 @@
+'use client'
 import { classifyLine } from '../../utils/terminalColors.js';
 
 // Render 1 entry trong lịch sử terminal: prompt + lệnh, output (colored), explanation, hint

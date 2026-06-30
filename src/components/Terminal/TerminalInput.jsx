@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useRef, useState } from 'react';
 
 // Input dòng lệnh với history điều hướng bằng mũi tên lên/xuống

@@ -1,3 +1,4 @@
+'use client'
 // Checklist các bước trong mission, tick khi AI báo step_completed
 export default function MissionProgress({ steps, completedSteps }) {
   return (

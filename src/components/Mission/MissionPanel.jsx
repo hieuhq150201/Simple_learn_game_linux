@@ -1,3 +1,4 @@
+'use client'
 import MissionProgress from './MissionProgress.jsx';
 import HintSystem from './HintSystem.jsx';
 import DebriefPanel from './DebriefPanel.jsx';

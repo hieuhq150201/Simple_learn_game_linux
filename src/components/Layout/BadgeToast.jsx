@@ -1,3 +1,4 @@
+'use client'
 // Toast tạm hiện khi vừa unlock 1 badge mới, tự ẩn sau vài giây
 export default function BadgeToast({ badge }) {
   if (!badge) return null;

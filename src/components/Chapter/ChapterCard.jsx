@@ -1,3 +1,4 @@
+'use client'
 // Card hiển thị 1 chương trên ChapterMap; 3 trạng thái: playable / locked / coming-soon
 export default function ChapterCard({ chapter, status, completedCount, onSelect }) {
   const playable = status === 'playable';

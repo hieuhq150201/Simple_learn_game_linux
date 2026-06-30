@@ -1,3 +1,4 @@
+'use client'
 // Overlay hướng dẫn cho người dùng MỚI; onStart() đóng overlay + vào Chương 1
 export default function WelcomeScreen({ onStart }) {
   const steps = [
