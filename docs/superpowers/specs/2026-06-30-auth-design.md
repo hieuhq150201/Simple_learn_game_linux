@@ -36,15 +36,28 @@
 - **localStorage**: guest mode progress (giữ nguyên behavior hiện tại)
 - **URL (nuqs)**: chapter/mission hiện tại (deep-link được)
 
-### Stack backend
+### Stack backend chi tiết
 
-- **Framework:** NestJS + TypeScript
-- **Database:** PostgreSQL
-- **ORM:** Prisma (type-safe, migration rõ ràng, dễ thêm model sau)
-- **Auth:** JWT — access token 15 phút + refresh token 30 ngày
-- **Password:** bcrypt (salt rounds = 12)
-- **Refresh token storage:** httpOnly cookie (tránh XSS)
-- **Access token storage:** httpOnly cookie ngắn hạn — Next.js middleware đọc được server-side, không cần lưu memory
+| Layer | Thư viện | Lý do chọn |
+|-------|----------|------------|
+| Framework | NestJS + TypeScript (strict) | Module system, DI, decorator-based — scale tốt khi thêm feature |
+| Database | PostgreSQL | Robust, SQL chuẩn, phù hợp khi thêm content gating/payment sau |
+| ORM | **Prisma** | Type-safe, migration rõ ràng, DX tốt hơn TypeORM cho team nhỏ. Prisma v7 — chú ý ESM config với NestJS |
+| Auth strategy | `@nestjs/passport` + `passport-jwt` | NestJS native, dễ thêm OAuth sau |
+| JWT | `@nestjs/jwt` | Sign/verify access & refresh token |
+| Password | `bcrypt` (rounds = 12) | Standard, không dùng argon2 vì không cần level đó |
+| Validation | `class-validator` + `class-transformer` | NestJS built-in, ValidationPipe global |
+| Config | `@nestjs/config` + Zod | Env vars type-safe, validate lúc startup (fail fast nếu thiếu biến) |
+| Logging | **nestjs-pino** + `pino-pretty` | Nhanh hơn Winston, structured JSON logs, redact sensitive fields |
+| Security headers | `helmet` | CSP, X-Frame-Options, HSTS — bật global |
+| Rate limiting | `@nestjs/throttler` | Chống brute force `/auth/login`, `/auth/register` |
+| Cookie | `cookie-parser` | Parse httpOnly cookie chứa refresh token |
+| API Docs | `@nestjs/swagger` | Auto-gen OpenAPI spec từ decorator — tiện khi frontend integrate |
+| Testing | Jest (built-in NestJS) | Unit test service, e2e test endpoint |
+
+**Auth:**
+- Access token: httpOnly cookie, 15 phút
+- Refresh token: httpOnly cookie, 30 ngày, lưu hash trong DB (không lưu plain token)
 
 ### Flow auth
 
@@ -145,25 +158,46 @@ game-api/
 ├── src/
 │   ├── auth/
 │   │   ├── auth.module.ts
-│   │   ├── auth.controller.ts     — /auth/*
-│   │   ├── auth.service.ts        — register, login, refresh, logout logic
+│   │   ├── auth.controller.ts          — /auth/*
+│   │   ├── auth.service.ts             — register, login, refresh, logout
+│   │   ├── dto/
+│   │   │   ├── register.dto.ts         — class-validator: email, password min 8
+│   │   │   └── login.dto.ts
 │   │   ├── strategies/
-│   │   │   ├── jwt.strategy.ts    — validate access_token
+│   │   │   ├── jwt.strategy.ts         — validate access_token từ cookie
 │   │   │   └── jwt-refresh.strategy.ts — validate refresh_token từ cookie
 │   │   └── guards/
 │   │       └── jwt-auth.guard.ts
 │   ├── users/
 │   │   ├── users.module.ts
-│   │   ├── users.controller.ts    — /users/me
-│   │   └── users.service.ts       — get profile, sync progress
+│   │   ├── users.controller.ts         — /users/me
+│   │   ├── users.service.ts            — get profile, sync/merge progress
+│   │   └── dto/
+│   │       └── update-progress.dto.ts
 │   ├── prisma/
-│   │   ├── prisma.module.ts       — global module
-│   │   └── prisma.service.ts      — PrismaClient wrapper
-│   └── main.ts                    — bootstrap, CORS, cookie-parser
+│   │   ├── prisma.module.ts            — global module
+│   │   └── prisma.service.ts           — PrismaClient wrapper + onModuleInit
+│   ├── common/
+│   │   ├── filters/
+│   │   │   └── http-exception.filter.ts — global: ẩn stack trace ở prod, log với pino
+│   │   └── config/
+│   │       └── env.schema.ts           — Zod schema validate env lúc startup
+│   └── main.ts                         — helmet, CORS, cookie-parser, ValidationPipe, Swagger
 ├── prisma/
 │   └── schema.prisma
-├── .env                           — DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET
+├── .env                                — DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, PORT
+├── .env.example                        — template commit lên repo
 └── package.json
+```
+
+**Lưu ý `main.ts`:**
+```ts
+app.use(helmet())
+app.enableCors({ origin: process.env.FRONTEND_URL, credentials: true })
+app.use(cookieParser())
+app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
+app.useGlobalFilters(new HttpExceptionFilter())
+// Swagger chỉ bật khi NODE_ENV !== 'production'
 ```
 
 ---
@@ -247,14 +281,17 @@ useMutation({ mutationFn: (data) => api.patch('/users/me/progress', data) })
 ## 6. Security Checklist
 
 - [x] Password hash với bcrypt (rounds = 12)
-- [x] Password hash với bcrypt (rounds = 12)
-- [x] Access token ngắn hạn (15 phút) — hạn chế thiệt hại nếu bị leak
+- [x] Refresh token lưu **hash** trong DB — nếu DB bị leak, token vô dụng
 - [x] Cả access token lẫn refresh token đều httpOnly cookie — không accessible bằng JS
+- [x] Access token ngắn hạn (15 phút) — hạn chế thiệt hại nếu bị leak
 - [x] Refresh token lưu DB → có thể revoke từng session
 - [x] Next.js middleware chặn route trước khi render — không có flash of unauthenticated content
-- [x] CORS chỉ cho phép origin của Next.js frontend
-- [x] Rate limiting trên `/auth/login` và `/auth/register` (chống brute force)
-- [x] Validate input với class-validator (NestJS built-in)
+- [x] CORS chỉ cho phép origin `FRONTEND_URL`
+- [x] Rate limiting (`@nestjs/throttler`) trên `/auth/login` và `/auth/register`
+- [x] `helmet()` global — CSP, HSTS, X-Frame-Options
+- [x] `ValidationPipe({ whitelist: true })` — strip unknown fields, chặn mass assignment
+- [x] Global exception filter — ẩn stack trace ở prod, không phân biệt "user không tồn tại" vs "sai password" (tránh account enumeration)
+- [x] Env vars validate lúc startup bằng Zod — fail fast nếu thiếu secret
 
 ---
 
