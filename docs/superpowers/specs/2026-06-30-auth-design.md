@@ -12,8 +12,10 @@
 
 | Repo | Vai trò | Stack |
 |------|---------|-------|
-| `game/` (repo hiện tại) | React frontend | React + Tailwind + Vite |
+| `game/` (repo hiện tại, migrate sang Next.js) | Frontend | Next.js + Tailwind + TypeScript |
 | `game-api/` (repo mới) | REST API backend | NestJS + TypeScript + PostgreSQL |
+
+> **Note:** Codebase hiện tại (React + Vite) sẽ được migrate sang Next.js App Router. Auth system được thiết kế cho Next.js ngay từ đầu — không cần refactor sau.
 
 ### Stack backend
 
@@ -23,25 +25,30 @@
 - **Auth:** JWT — access token 15 phút + refresh token 30 ngày
 - **Password:** bcrypt (salt rounds = 12)
 - **Refresh token storage:** httpOnly cookie (tránh XSS)
-- **Access token storage:** in-memory trên frontend (không localStorage)
+- **Access token storage:** httpOnly cookie ngắn hạn — Next.js middleware đọc được server-side, không cần lưu memory
 
 ### Flow auth
 
 ```
 [Register / Login]
-  → server trả access_token (JSON body) + refresh_token (httpOnly cookie)
-  → frontend lưu access_token trong React state / memory
+  → server trả access_token (httpOnly cookie, 15 phút)
+               + refresh_token (httpOnly cookie, 30 ngày)
+  → Next.js middleware tự đọc cookie ở mọi request — không cần lưu JS memory
 
-[Mỗi request API]
-  → gửi kèm Authorization: Bearer <access_token>
+[Mỗi request tới NestJS API]
+  → Next.js Server Action / Route Handler đính access_token vào header
+  → hoặc client gọi trực tiếp với credentials: 'include' (cookie tự gửi kèm)
 
-[Khi access_token hết hạn (15 phút)]
-  → frontend tự động gọi POST /auth/refresh
-  → server đọc refresh_token từ cookie, trả access_token mới
+[Khi access_token hết hạn]
+  → Next.js middleware intercept 401, tự gọi POST /auth/refresh
+  → nhận access_token mới, set lại cookie, retry request gốc
+
+[Bảo vệ route]
+  → middleware.ts kiểm tra cookie access_token
+  → redirect về /login nếu không có hoặc hết hạn
 
 [Logout]
-  → server xóa refresh_token khỏi DB + clear cookie
-  → frontend xóa access_token khỏi memory
+  → server xóa refresh_token khỏi DB + clear cả hai cookie
 ```
 
 ### Guest mode (không đăng nhập)
@@ -142,50 +149,73 @@ game-api/
 
 ---
 
-## 5. Frontend Integration
+## 5. Frontend Integration (Next.js)
 
-### Hook mới: `useAuth`
+### Cấu trúc Next.js liên quan đến auth
 
 ```
-src/hooks/useAuth.js
+game/
+├── middleware.ts                  — kiểm tra cookie, redirect nếu chưa login
+├── app/
+│   ├── (auth)/
+│   │   ├── login/page.tsx         — trang đăng nhập
+│   │   └── register/page.tsx      — trang đăng ký
+│   ├── (game)/
+│   │   └── layout.tsx             — layout bọc các trang cần login
+│   └── layout.tsx                 — root layout, AuthProvider
+├── lib/
+│   └── api.ts                     — fetch wrapper tự gắn cookie, handle 401 refresh
+└── contexts/
+    └── AuthContext.tsx            — user state, login/logout actions
 ```
 
-Quản lý:
-- `user` state (null nếu chưa đăng nhập)
-- `accessToken` trong memory (không persist)
-- `login(email, password)` → gọi API → lưu token → fetch + merge progress
+### middleware.ts
+
+Chạy trên mọi request ở Edge Runtime — kiểm tra cookie `access_token`:
+- Nếu hợp lệ → cho qua
+- Nếu hết hạn → gọi `/auth/refresh`, set cookie mới, retry
+- Nếu không có / refresh thất bại → redirect về `/login`
+- Route `/login`, `/register` luôn public (bypass middleware)
+
+### AuthContext
+
+Cung cấp cho toàn app:
+- `user` — `{ id, email }` hoặc `null` (guest)
+- `login(email, password)` → gọi API → server set cookie → fetch + merge progress
 - `register(email, password)` → tương tự login
-- `logout()` → gọi API → clear state
-- `refreshToken()` → tự động gọi khi nhận 401
+- `logout()` → gọi API → server clear cookie → clear local state
+
+Không cần lưu token trong state — cookie tự động gửi kèm mọi request.
 
 ### Sync progress
 
-Trong `useProgress.js` — sau khi `completeMission()`:
-- Nếu user đang đăng nhập → gọi `PATCH /users/me/progress` với progress mới
-- Nếu guest → chỉ lưu localStorage như hiện tại (không thay đổi behavior)
+Trong progress context — sau khi `completeMission()`:
+- Nếu user đang đăng nhập → gọi `PATCH /users/me/progress`
+- Nếu guest → chỉ lưu localStorage (behavior không đổi)
 
 ### Merge khi login
 
-Khi user đăng nhập thành công:
 1. Fetch progress từ server
-2. Merge với localStorage: union của hai tập `completedMissions`, `stats` lấy max
-3. Lưu kết quả merge vào cả localStorage lẫn server
+2. Merge với localStorage: union `completedMissions`, `stats` lấy max
+3. Lưu kết quả vào cả localStorage lẫn server
 
 ### UI cần thêm
 
-- `LoginModal.jsx` — form email + password, link sang register
-- `RegisterModal.jsx` — form tạo tài khoản
-- Header: hiện avatar/email + nút logout khi đã đăng nhập, nút "Đăng nhập" khi guest
+- `app/(auth)/login/page.tsx` — form email + password
+- `app/(auth)/register/page.tsx` — form tạo tài khoản
+- Header: hiện email + nút logout khi đã đăng nhập, nút "Đăng nhập" khi guest
 
 ---
 
 ## 6. Security Checklist
 
 - [x] Password hash với bcrypt (rounds = 12)
+- [x] Password hash với bcrypt (rounds = 12)
 - [x] Access token ngắn hạn (15 phút) — hạn chế thiệt hại nếu bị leak
-- [x] Refresh token lưu httpOnly cookie — không accessible bằng JS
-- [x] Refresh token lưu DB → có thể revoke
-- [x] CORS chỉ cho phép origin của frontend
+- [x] Cả access token lẫn refresh token đều httpOnly cookie — không accessible bằng JS
+- [x] Refresh token lưu DB → có thể revoke từng session
+- [x] Next.js middleware chặn route trước khi render — không có flash of unauthenticated content
+- [x] CORS chỉ cho phép origin của Next.js frontend
 - [x] Rate limiting trên `/auth/login` và `/auth/register` (chống brute force)
 - [x] Validate input với class-validator (NestJS built-in)
 
@@ -207,6 +237,7 @@ Schema hiện tại (`User.plan`) có thể thêm sau mà không cần refactor 
 
 ## 8. Out of Scope (sprint này)
 
+- Migration React → Next.js — sprint riêng, trước hoặc song song với auth
 - OAuth (Google / GitHub) — có thể thêm sau khi email/password stable
 - Email verification
 - Forgot password / reset password flow
