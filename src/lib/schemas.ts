@@ -6,6 +6,7 @@ export const loginSchema = z.object({
 })
 
 export const registerSchema = z.object({
+  displayName: z.string().max(50).optional(),
   email: z.string().email('Email không hợp lệ'),
   password: z.string().min(8, 'Mật khẩu tối thiểu 8 ký tự').max(72),
   confirmPassword: z.string(),

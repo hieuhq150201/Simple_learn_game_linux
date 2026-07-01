@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
-import BadgePanel from './components/Layout/BadgePanel';
+import ProgressHero from './components/Layout/ProgressHero';
 import BadgeToast from './components/Layout/BadgeToast';
 import WelcomeScreen from './components/Layout/WelcomeScreen';
 import CommandCheatsheet from './components/Mission/CommandCheatsheet';
@@ -149,15 +149,22 @@ export default function App(): JSX.Element {
     <div className="h-screen flex flex-col text-gray-200">
       <Header
         title={activeChapterId ? `Chương ${activeChapterId}` : 'Bản đồ chương'}
-        progressPercent={progressPercent}
       />
 
       <main className="flex-1 min-h-0 p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto lg:overflow-hidden">
-        <BadgePanel badges={badges} stats={progress.progress.stats} />
         {activeChapterId ? (
           <ChapterScreen chapterId={activeChapterId} progress={progress} onBack={() => setActiveChapterId(null)} />
         ) : (
-          <ChapterMap progress={progress} onSelectChapter={setActiveChapterId} />
+          <>
+            <ProgressHero
+              progressPercent={progressPercent}
+              completedCount={completedCount}
+              totalMissions={totalMissions}
+              badges={badges}
+              stats={progress.progress.stats}
+            />
+            <ChapterMap progress={progress} onSelectChapter={setActiveChapterId} />
+          </>
         )}
       </main>
 

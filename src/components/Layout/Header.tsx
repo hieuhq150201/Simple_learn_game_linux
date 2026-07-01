@@ -13,10 +13,9 @@ import { Avatar } from '@/components/Avatar'
 
 interface HeaderProps {
   title: string;
-  progressPercent: number;
 }
 
-export default function Header({ title, progressPercent }: HeaderProps): JSX.Element {
+export default function Header({ title }: HeaderProps): JSX.Element {
   const { user, isAuthenticated, logout } = useAuthStore()
 
   return (
@@ -28,11 +27,6 @@ export default function Header({ title, progressPercent }: HeaderProps): JSX.Ele
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
-        <div className="hidden sm:block w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
-          <div className="h-full bg-green-400" style={{ width: `${progressPercent}%` }} />
-        </div>
-        <span className="text-xs text-gray-500">{progressPercent}%</span>
-
         <ThemeToggle />
 
         {isAuthenticated && user ? (
