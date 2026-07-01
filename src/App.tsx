@@ -7,7 +7,6 @@ import BadgeToast from './components/Layout/BadgeToast';
 import WelcomeScreen from './components/Layout/WelcomeScreen';
 import ChapterCompleteModal from './components/Achievement/ChapterCompleteModal';
 import type { TrophyTier } from './components/Achievement/TrophyIcon';
-import CommandCheatsheet from './components/Mission/CommandCheatsheet';
 import ChapterMap from './components/Chapter/ChapterMap';
 import MissionPanel from './components/Mission/MissionPanel';
 import Terminal from './components/Terminal/Terminal';
@@ -58,7 +57,6 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
             onBackToMap={onBack}
           />
         </div>
-        <CommandCheatsheet />
       </div>
       <div className="min-h-[420px] lg:min-h-0">
         <Terminal entries={entries} commandHistory={commandHistory} onSubmit={handleSubmit} isLoading={isLoading} />

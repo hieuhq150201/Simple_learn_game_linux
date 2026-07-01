@@ -24,9 +24,24 @@ const COMMANDS: CommandItem[] = [
   { cmd: 'exit', desc: 'Thoát mission, về bản đồ chương.' },
 ];
 
-export default function CommandCheatsheet(): JSX.Element {
-  const [open, setOpen] = useState(false);
+export default function CommandCheatsheet({ embedded = false }: { embedded?: boolean }): JSX.Element {
+  const [open, setOpen] = useState(embedded);
 
+  if (embedded) {
+    // Trong slide panel: hiển thị thẳng, không có accordion
+    return (
+      <ul className="space-y-2">
+        {COMMANDS.map(({ cmd, desc }) => (
+          <li key={cmd} className="flex gap-2 text-xs leading-relaxed">
+            <code className="shrink-0 font-mono text-green-600 dark:text-green-400">{cmd}</code>
+            <span className="text-hp-muted">{desc}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  // Standalone (không dùng nữa nhưng giữ để backward compat)
   return (
     <div className="border border-hp-border rounded-lg bg-hp-card">
       <button
@@ -36,7 +51,6 @@ export default function CommandCheatsheet(): JSX.Element {
         <span>⌨ Lệnh cơ bản</span>
         <span className="text-xs text-hp-subtle">{open ? 'Đóng ▲' : 'Mở ▼'}</span>
       </button>
-
       {open && (
         <ul className="max-h-64 overflow-y-auto border-t border-hp-border px-3 py-2 space-y-1.5">
           {COMMANDS.map(({ cmd, desc }) => (
