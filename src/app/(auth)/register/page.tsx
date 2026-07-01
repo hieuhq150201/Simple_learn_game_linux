@@ -18,12 +18,12 @@ export default function RegisterPage() {
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', password: '', confirmPassword: '' },
+    defaultValues: { email: '', password: '', confirmPassword: '', displayName: '' },
   })
 
   async function onSubmit(values: RegisterInput) {
     try {
-      await register(values.email, values.password)
+      await register(values.email, values.password, values.displayName || undefined)
       router.push('/')
     } catch {
       form.setError('root', { message: 'Email đã được sử dụng hoặc có lỗi xảy ra' })
@@ -39,6 +39,23 @@ export default function RegisterPage() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-green-500">Tên hiển thị</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Tên của bạn (tùy chọn)"
+                      className="bg-black border-green-800 text-green-400 placeholder:text-green-900 focus:border-green-500"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-400" />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"

@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Avatar } from '@/components/Avatar'
 
 interface HeaderProps {
   title: string;
@@ -36,8 +37,8 @@ export default function Header({ title, progressPercent }: HeaderProps): JSX.Ele
 
         {isAuthenticated && user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger className="text-green-400 text-xs font-mono px-2 py-1 rounded hover:text-green-300 hover:bg-green-900/20 transition-colors">
-              [{user.email}]
+            <DropdownMenuTrigger className="rounded-sm hover:ring-2 hover:ring-green-700 transition-all outline-none">
+              <Avatar avatarUrl={user.avatarUrl} displayName={user.displayName} email={user.email} size={28} />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-gray-900 border-green-800">
               <DropdownMenuItem

@@ -17,7 +17,7 @@ interface AuthState {
   updateUser: (partial: Partial<User>) => void
   fetchMe: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, displayName?: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -73,10 +73,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  register: async (email, password) => {
+  register: async (email, password, displayName) => {
     set({ isLoading: true })
     try {
-      const data = await api.post('/auth/register', { email, password })
+      const data = await api.post('/auth/register', { email, password, ...(displayName ? { displayName } : {}) })
       if (!data?.id) throw new Error('Register failed')
       set({
         user: {
