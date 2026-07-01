@@ -21,7 +21,14 @@ async function fetchWithRefresh(input: RequestInfo, init?: RequestInit): Promise
   return res
 }
 
-const toJson = (r: Response) => (r.status === 204 || r.headers.get('content-length') === '0' ? null : r.json())
+const toJson = async (r: Response) => {
+  if (!r.ok) {
+    const body = await r.json().catch(() => ({})) as Record<string, unknown>
+    throw new Error((body.message as string) ?? `HTTP ${r.status}`)
+  }
+  if (r.status === 204 || r.headers.get('content-length') === '0') return null
+  return r.json()
+}
 
 export const api = {
   get: (path: string) =>
