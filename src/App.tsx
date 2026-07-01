@@ -34,7 +34,7 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
     filesystem,
     applyFilesystemUpdate: applyUpdate,
     onMissionComplete: ({ usedHint }) => {
-      progress.completeMission(chapter.id, mission.id, { usedHint });
+      progress.completeMission(chapter.id, mission.id, { usedHint, hintsUsed: hintsUsedCount });
       onMissionComplete?.();
     },
     onCommandRun: progress.incrementCommandsRun,
