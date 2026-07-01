@@ -33,3 +33,38 @@ body {
     transition: none !important;
   }
 }
+
+/* Animation keyframes cho gamification */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+@keyframes star-pop {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  70%  { transform: scale(1.25) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes streak-break {
+  0%   { transform: scale(1); opacity: 1; }
+  30%  { transform: scale(1.15); }
+  60%  { transform: scale(0.8) rotate(10deg); opacity: 0.6; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes xp-fill {
+  from { width: var(--xp-from); }
+  to   { width: var(--xp-to); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake,
+  .animate-star-pop,
+  .animate-streak-break {
+    animation: none !important;
+  }
+}
