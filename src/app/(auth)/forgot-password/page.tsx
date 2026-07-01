@@ -34,9 +34,9 @@ export default function ForgotPasswordPage() {
           {sent ? (
             <div className="space-y-4 text-center">
               <p className="text-green-400 font-mono text-sm">
-                ✓ Nếu email tồn tại, link đã được gửi vào hộp thư của mày.
+                ✓ Nếu email tồn tại, link đã được gửi vào hộp thư của bạn.
               </p>
-              <p className="text-gray-500 text-xs">Kiểm tra cả thư mục spam nhé.</p>
+              <p className="text-gray-500 text-xs">Vui lòng kiểm tra cả thư mục spam.</p>
               <Link href="/login" className="block text-green-600 text-sm hover:text-green-400 font-mono">
                 ← Quay lại đăng nhập
               </Link>
