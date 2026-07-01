@@ -11,6 +11,7 @@ import {
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Avatar } from '@/components/Avatar'
 import NotificationBell from '@/components/Layout/NotificationBell'
+import ProfileSwitcher from '@/components/Leaderboard/ProfileSwitcher'
 
 interface HeaderProps {
   title: string;
@@ -28,6 +29,7 @@ export default function Header({ title }: HeaderProps): JSX.Element {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
+        <ProfileSwitcher />
         <NotificationBell />
         <ThemeToggle />
 
