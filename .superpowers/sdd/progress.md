@@ -16,3 +16,4 @@ MINOR (leaderboard): alert() for validation — replace with inline error in fut
 Task 7: complete (commits 72e15fd..ba1cab8, 315/315 tests, review approved)
 Task 9: complete (commits 90bc9ec..72e15fd, build clean, review approved)
 Task 11: complete (commits 4c8557d..68b1dac, 315/315 tests, build clean, review approved)
+Task 12: complete (commit 66ae62c, 9/9 smoke checks, review N/A — Playwright run)

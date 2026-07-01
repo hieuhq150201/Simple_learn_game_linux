@@ -81,17 +81,17 @@ const STATE_CONFIG: Record<HintState, {
 
 export default function HintSystem({ onRequestHint, hintsUsedCount, maxHints }: HintSystemProps): JSX.Element {
   const [animating, setAnimating] = useState(false)
-  const [lottieData, setLottieData] = useState<Record<string, unknown> | null>(null)
+  const [lottieCache, setLottieCache] = useState<{ file: string; data: Record<string, unknown> } | null>(null)
 
   const state = getHintState(hintsUsedCount, maxHints)
   const cfg = STATE_CONFIG[state]
 
-  // Lazy load Lottie JSON khi cần
+  // Lazy load Lottie JSON khi cần, track file để tránh render nhầm
   const loadLottie = async (file: string) => {
     try {
       const res = await fetch(file)
       const data = await res.json()
-      setLottieData(data)
+      setLottieCache({ file, data })
     } catch { /* fallback to emoji */ }
   }
 
@@ -111,12 +111,17 @@ export default function HintSystem({ onRequestHint, hintsUsedCount, maxHints }: 
   return (
     <div className={`rounded-md border p-3 flex flex-col gap-2 transition-colors ${cfg.boxClass} ${animating && !prefersReduced ? 'animate-shake' : ''}`}>
       <div className="flex items-start gap-2">
-        {cfg.lottieFile && lottieData ? (
+        {cfg.lottieFile && lottieCache?.file === cfg.lottieFile ? (
           <div style={{ width: cfg.lottieSize, height: cfg.lottieSize, flexShrink: 0 }}>
-            <Lottie animationData={lottieData} loop style={{ width: cfg.lottieSize, height: cfg.lottieSize }} />
+            <Lottie animationData={lottieCache.data} loop style={{ width: cfg.lottieSize, height: cfg.lottieSize }} />
           </div>
         ) : (
-          <span className="text-lg shrink-0">{cfg.emoji}</span>
+          <span
+            className="shrink-0 leading-none"
+            style={{ fontSize: cfg.lottieSize > 0 ? cfg.lottieSize * 0.7 : 18 }}
+          >
+            {cfg.emoji}
+          </span>
         )}
         <div>
           <p className="text-hp-fg text-xs leading-relaxed">{cfg.text}</p>
