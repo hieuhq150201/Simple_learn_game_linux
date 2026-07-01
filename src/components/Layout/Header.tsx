@@ -11,7 +11,6 @@ import {
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Avatar } from '@/components/Avatar'
 import NotificationBell from '@/components/Layout/NotificationBell'
-import ProfileSwitcher from '@/components/Leaderboard/ProfileSwitcher'
 
 interface HeaderProps {
   title: string;
@@ -36,7 +35,6 @@ export default function Header({ title, xp, level }: HeaderProps): JSX.Element {
             Lv.{level} · {xp?.toLocaleString()} XP
           </span>
         )}
-        <ProfileSwitcher />
         <NotificationBell />
         <ThemeToggle />
 
