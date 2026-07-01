@@ -1,9 +1,11 @@
 'use client'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { badges, isBadgeUnlocked } from '../data/badges.js'
 import { chapters } from '../data/chapters.js'
 import { calcXP, calcLevel, calcStars, type Stars } from '../utils/xpCalc'
 import { updateStreak, getStreakBroken } from '../utils/streakCalc'
+import { useAuthStore } from '../stores/authStore'
+import { api } from '../lib/api'
 
 const STORAGE_KEY = 'hacker-path-progress'
 
@@ -44,10 +46,67 @@ function saveProgress(p: ProgressState): void {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)) } catch { /* quota exceeded */ }
 }
 
+// Merge missions: giữ record có stars cao hơn
+function mergeMissions(
+  local: Record<string, MissionRecord>,
+  server: Record<string, MissionRecord>,
+): Record<string, MissionRecord> {
+  const result = { ...local }
+  for (const [key, serverRecord] of Object.entries(server)) {
+    const localRecord = local[key]
+    if (!localRecord || (serverRecord.stars ?? 0) > (localRecord.stars ?? 0)) {
+      result[key] = serverRecord
+    }
+  }
+  return result
+}
+
 export function useProgress() {
   const [progress, setProgress] = useState<ProgressState>(loadProgress)
+  const { isAuthenticated } = useAuthStore()
+  const syncedRef = useRef(false) // tránh sync nhiều lần khi re-render
 
-  // Tính streakBroken một lần khi load
+  // Khi login: fetch progress từ server, merge với localStorage
+  useEffect(() => {
+    if (!isAuthenticated || syncedRef.current) return
+    syncedRef.current = true
+
+    api.get('/users/me').then((data: unknown) => {
+      const serverProg = (data as { progress?: { completedMissions?: Record<string, MissionRecord>; xp?: number; level?: number; currentStreak?: number; lastPlayDate?: string; commandsRun?: number; hintsUsed?: number } }).progress
+      if (!serverProg) {
+        // Chưa có progress trên server → push local lên
+        pushToServer(loadProgress())
+        return
+      }
+
+      const local = loadProgress()
+      const merged = mergeMissions(local.completedMissions, serverProg.completedMissions ?? {})
+      const mergedXP = Object.values(merged).reduce((sum, m) => sum + (m.xpEarned ?? 0), 0)
+
+      const next: ProgressState = {
+        completedMissions: merged,
+        stats: {
+          commandsRun: Math.max(local.stats.commandsRun, serverProg.commandsRun ?? 0),
+          hintsUsed: Math.max(local.stats.hintsUsed, serverProg.hintsUsed ?? 0),
+        },
+        xp: mergedXP,
+        level: calcLevel(mergedXP),
+        // Streak: server là source of truth (time-based)
+        currentStreak: serverProg.currentStreak ?? local.currentStreak,
+        lastPlayDate: serverProg.lastPlayDate ?? local.lastPlayDate,
+      }
+      saveProgress(next)
+      setProgress(next)
+      // Đẩy merged state ngược lại server để đồng bộ
+      pushToServer(next)
+    }).catch(() => { /* offline hoặc lỗi mạng — giữ localStorage */ })
+  }, [isAuthenticated])
+
+  // Reset syncedRef khi logout để lần login sau sync lại
+  useEffect(() => {
+    if (!isAuthenticated) syncedRef.current = false
+  }, [isAuthenticated])
+
   const streakBroken = getStreakBroken({ currentStreak: progress.currentStreak, lastPlayDate: progress.lastPlayDate })
 
   const isMissionCompleted = useCallback(
@@ -69,7 +128,6 @@ export function useProgress() {
         const existing = prev.completedMissions[key]
         const stars = calcStars(hintsUsed)
 
-        // Không cộng XP nếu replay và sao không tốt hơn
         const isImprovement = !existing || stars > existing.stars
         const xpEarned = isImprovement ? calcXP(chapterId, missionId, stars) : 0
         const newXP = prev.xp + xpEarned
@@ -88,6 +146,12 @@ export function useProgress() {
           lastPlayDate: streakState.lastPlayDate,
         }
         saveProgress(next)
+
+        // Fire-and-forget sync nếu đã đăng nhập
+        if (useAuthStore.getState().isAuthenticated) {
+          pushToServer(next)
+        }
+
         return next
       })
     },
@@ -140,4 +204,16 @@ export function useProgress() {
     isChapterUnlocked,
     getBadges,
   }
+}
+
+function pushToServer(p: ProgressState): void {
+  api.patch('/users/me/progress', {
+    completedMissions: p.completedMissions,
+    xp: p.xp,
+    level: p.level,
+    currentStreak: p.currentStreak,
+    lastPlayDate: p.lastPlayDate,
+    commandsRun: p.stats.commandsRun,
+    hintsUsed: p.stats.hintsUsed,
+  }).catch(() => { /* ignore network errors */ })
 }
