@@ -151,7 +151,7 @@ export default function App(): JSX.Element {
         title={activeChapterId ? `Chương ${activeChapterId}` : 'Bản đồ chương'}
       />
 
-      <main className="flex-1 min-h-0 p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto lg:overflow-hidden">
+      <main className={`flex-1 min-h-0 p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto ${activeChapterId ? 'lg:overflow-hidden' : ''}`}>
         {activeChapterId ? (
           <ChapterScreen chapterId={activeChapterId} progress={progress} onBack={() => setActiveChapterId(null)} />
         ) : (
