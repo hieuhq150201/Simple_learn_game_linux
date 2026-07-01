@@ -15,9 +15,11 @@ import ProfileSwitcher from '@/components/Leaderboard/ProfileSwitcher'
 
 interface HeaderProps {
   title: string;
+  xp?: number;
+  level?: number;
 }
 
-export default function Header({ title }: HeaderProps): JSX.Element {
+export default function Header({ title, xp, level }: HeaderProps): JSX.Element {
   const { user, isAuthenticated, logout } = useAuthStore()
 
   return (
@@ -29,6 +31,11 @@ export default function Header({ title }: HeaderProps): JSX.Element {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-2">
+        {level != null && (
+          <span className="hidden sm:flex items-center gap-1 text-[10px] font-mono text-yellow-600 dark:text-yellow-500 border border-yellow-600/20 rounded px-1.5 py-0.5">
+            Lv.{level} · {xp?.toLocaleString()} XP
+          </span>
+        )}
         <ProfileSwitcher />
         <NotificationBell />
         <ThemeToggle />

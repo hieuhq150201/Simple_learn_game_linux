@@ -16,6 +16,8 @@ import { useProgress } from './hooks/useProgress';
 import { chapters } from './data/chapters.js';
 import { getMissionsForChapter, getMission } from './data/missions.js';
 import { instantiateMission } from './utils/missionEngine';
+import MissionCompleteModal from './components/Achievement/MissionCompleteModal';
+import { calcStars, calcXP } from './utils/xpCalc';
 
 // 1 mission đang chơi: filesystem + terminal logic riêng, remount mỗi khi đổi mission (key ở MissionScreen cha)
 function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, onNextMission }: {
@@ -26,6 +28,7 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
   onBack: () => void;
   onNextMission?: () => void;
 }): JSX.Element {
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
   const { filesystem, applyUpdate } = useFilesystem(mission.initialFilesystem);
   const { entries, commandHistory, handleSubmit, isLoading, missionCompleted, completedSteps } = useTerminal({
     chapter,
@@ -35,6 +38,7 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
     onMissionComplete: ({ usedHint }) => {
       const hintsCount = entries.filter((e) => e.command?.trim() === 'hint').length;
       progress.completeMission(chapter.id, mission.id, { usedHint, hintsUsed: hintsCount });
+      setShowCompleteModal(true);
       onMissionComplete?.();
     },
     onCommandRun: progress.incrementCommandsRun,
@@ -45,24 +49,40 @@ function MissionScreen({ chapter, mission, progress, onMissionComplete, onBack, 
   const hintsUsedCount = entries.filter((e) => e.command?.trim() === 'hint').length;
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-4 lg:flex-1 lg:min-h-0">
-      <div className="flex flex-col gap-3 min-h-0">
-        <div className="lg:flex-1 lg:min-h-0">
-          <MissionPanel
-            mission={mission}
-            completedSteps={completedSteps}
-            hintsUsedCount={hintsUsedCount}
-            missionCompleted={missionCompleted}
-            onRequestHint={() => handleSubmit('hint')}
-            onNextMission={onNextMission}
-            onBackToMap={onBack}
-          />
+    <>
+      <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-4 lg:flex-1 lg:min-h-0">
+        <div className="flex flex-col gap-3 min-h-0">
+          <div className="lg:flex-1 lg:min-h-0">
+            <MissionPanel
+              mission={mission}
+              completedSteps={completedSteps}
+              hintsUsedCount={hintsUsedCount}
+              missionCompleted={missionCompleted}
+              missionStars={progress.getMissionStars(chapter.id, mission.id)}
+              onRequestHint={() => handleSubmit('hint')}
+              onNextMission={onNextMission ? () => { setShowCompleteModal(false); onNextMission(); } : undefined}
+              onBackToMap={onBack}
+            />
+          </div>
+        </div>
+        <div className="min-h-[420px] lg:min-h-0">
+          <Terminal entries={entries} commandHistory={commandHistory} onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
       </div>
-      <div className="min-h-[420px] lg:min-h-0">
-        <Terminal entries={entries} commandHistory={commandHistory} onSubmit={handleSubmit} isLoading={isLoading} />
-      </div>
-    </div>
+      {showCompleteModal && missionCompleted && (
+        <MissionCompleteModal
+          missionTitle={mission.title}
+          stars={calcStars(hintsUsedCount)}
+          xp={progress.xp}
+          xpEarned={calcXP(chapter.id, mission.id, calcStars(hintsUsedCount))}
+          level={progress.level}
+          streak={progress.currentStreak}
+          streakBroken={progress.streakBroken}
+          onNextMission={onNextMission ? () => { setShowCompleteModal(false); onNextMission(); } : undefined}
+          onBackToMap={() => { setShowCompleteModal(false); onBack(); }}
+        />
+      )}
+    </>
   );
 }
 
@@ -174,6 +194,8 @@ export default function App(): JSX.Element {
     <div className="h-screen flex flex-col text-hp-fg">
       <Header
         title={activeChapterId ? `Chương ${activeChapterId}` : 'Bản đồ chương'}
+        xp={progress.xp}
+        level={progress.level}
       />
 
       <main className={`flex-1 min-h-0 p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto ${activeChapterId ? 'lg:overflow-hidden' : ''}`}>
