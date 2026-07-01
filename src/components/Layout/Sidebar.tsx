@@ -12,7 +12,7 @@ interface SidebarProps {
 // Sidebar chọn mission trong 1 chương, hiện check khi đã hoàn thành
 export default function Sidebar({ chapter, missionList, activeMissionId, isMissionCompleted, onSelectMission, onBack }: SidebarProps): JSX.Element {
   return (
-    <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-full lg:w-56 lg:shrink-0 min-h-0">
+    <div className="flex flex-col gap-3 p-4 border border-term-border rounded-lg bg-gray-950/60 w-full lg:w-56 lg:shrink-0 min-h-0 overflow-hidden">
       <button
         onClick={onBack}
         className="flex items-center justify-center gap-1.5 w-full text-sm text-gray-200 border border-term-border rounded-md px-3 py-2 hover:border-indigo-400/60 hover:text-indigo-400 transition-colors shrink-0"
@@ -24,7 +24,7 @@ export default function Sidebar({ chapter, missionList, activeMissionId, isMissi
         Chương {chapter.id}: {chapter.title}
       </h2>
 
-      <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0 max-h-64 lg:max-h-none">
+      <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0">
         {missionList.map((mission) => {
           const done = isMissionCompleted(chapter.id, mission.id);
           const active = mission.id === activeMissionId;

@@ -82,7 +82,7 @@ function ChapterScreen({ chapterId, progress, onBack }: {
   const nextMission = missionList.find((m: any) => m.id === activeMissionId! + 1);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 lg:flex-1 lg:min-h-0">
+    <div className="flex flex-col lg:flex-row gap-4 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
       <Sidebar
         chapter={chapter}
         missionList={missionList}
