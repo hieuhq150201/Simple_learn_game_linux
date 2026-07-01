@@ -2,8 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Semantic color tokens — light/dark via CSS custom properties */
+:root {
+  --hp-surface: #f8fafc;
+  --hp-card:    #ffffff;
+  --hp-border:  #e2e8f0;
+  --hp-fg:      #111827;
+  --hp-muted:   #64748b;
+  --hp-subtle:  #94a3b8;
+}
+
+.dark {
+  --hp-surface: #030712;
+  --hp-card:    #111827;
+  --hp-border:  #1f2937;
+  --hp-fg:      #f1f5f9;
+  --hp-muted:   #9ca3af;
+  --hp-subtle:  #6b7280;
+}
+
 body {
   font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+  background-color: var(--hp-surface);
+  color: var(--hp-fg);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -13,6 +13,14 @@ export default {
           accent: '#818cf8',
           border: '#1f2937',
         },
+        hp: {
+          surface: 'var(--hp-surface)',
+          card:    'var(--hp-card)',
+          border:  'var(--hp-border)',
+          fg:      'var(--hp-fg)',
+          muted:   'var(--hp-muted)',
+          subtle:  'var(--hp-subtle)',
+        },
       },
       fontFamily: {
         mono: ['"Fira Code"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],

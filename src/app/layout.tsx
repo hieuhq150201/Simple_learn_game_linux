@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
-export const metadata: Metadata = { title: 'Hacker Path' }
+export const metadata: Metadata = {
+  title: 'Hacker Path',
+  icons: { icon: '/favicon.svg', shortcut: '/favicon.svg' },
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

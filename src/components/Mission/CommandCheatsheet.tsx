@@ -6,7 +6,6 @@ interface CommandItem {
   desc: string;
 }
 
-// Bảng tra lệnh cơ bản cho người chưa từng dùng terminal; tự chứa, collapse gọn
 const COMMANDS: CommandItem[] = [
   { cmd: 'pwd', desc: 'In ra thư mục hiện tại đang đứng.' },
   { cmd: 'ls', desc: 'Liệt kê file & thư mục (thêm -la để xem chi tiết + file ẩn).' },
@@ -29,21 +28,21 @@ export default function CommandCheatsheet(): JSX.Element {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border border-term-border rounded-lg bg-gray-950/60">
+    <div className="border border-hp-border rounded-lg bg-hp-card">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-3 py-2 text-sm text-gray-300 transition-colors hover:text-indigo-400"
+        className="flex w-full items-center justify-between px-3 py-2 text-sm text-hp-fg transition-colors hover:text-indigo-400"
       >
         <span>⌨ Lệnh cơ bản</span>
-        <span className="text-xs text-gray-500">{open ? 'Đóng ▲' : 'Mở ▼'}</span>
+        <span className="text-xs text-hp-subtle">{open ? 'Đóng ▲' : 'Mở ▼'}</span>
       </button>
 
       {open && (
-        <ul className="max-h-64 overflow-y-auto border-t border-term-border px-3 py-2 space-y-1.5">
+        <ul className="max-h-64 overflow-y-auto border-t border-hp-border px-3 py-2 space-y-1.5">
           {COMMANDS.map(({ cmd, desc }) => (
             <li key={cmd} className="flex gap-2 text-xs leading-relaxed">
-              <code className="shrink-0 font-mono text-green-400">{cmd}</code>
-              <span className="text-gray-400">{desc}</span>
+              <code className="shrink-0 font-mono text-green-600 dark:text-green-400">{cmd}</code>
+              <span className="text-hp-muted">{desc}</span>
             </li>
           ))}
         </ul>

@@ -3,6 +3,7 @@ export const badges = [
   {
     id: 'script-kiddie',
     emoji: '🔰',
+    tier: 'bronze',
     name: 'Script Kiddie',
     description: 'Hoàn thành Chương 1 — Terminal Sinh Tồn.',
     requiredChapters: [1],
@@ -10,6 +11,7 @@ export const badges = [
   {
     id: 'linux-native',
     emoji: '🐧',
+    tier: 'bronze',
     name: 'Linux Native',
     description: 'Hoàn thành Chương 1 đến 3.',
     requiredChapters: [1, 2, 3],
@@ -17,6 +19,7 @@ export const badges = [
   {
     id: 'network-ninja',
     emoji: '🌐',
+    tier: 'silver',
     name: 'Network Ninja',
     description: 'Hoàn thành Chương 3 và 4.',
     requiredChapters: [3, 4],
@@ -24,6 +27,7 @@ export const badges = [
   {
     id: 'recon-master',
     emoji: '🔍',
+    tier: 'silver',
     name: 'Recon Master',
     description: 'Hoàn thành Chương 5 — Recon & Enumeration.',
     requiredChapters: [5],
@@ -31,6 +35,7 @@ export const badges = [
   {
     id: 'full-hacker',
     emoji: '💀',
+    tier: 'gold',
     name: 'Full Hacker',
     description: 'Hoàn thành tất cả 8 chương.',
     requiredChapters: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -38,6 +43,7 @@ export const badges = [
   {
     id: 'lateral-master',
     emoji: '🥷',
+    tier: 'gold',
     name: 'Lateral Master',
     description: 'Hoàn thành Chương 9 — Lateral Movement & AD.',
     requiredChapters: [9],
@@ -45,6 +51,7 @@ export const badges = [
   {
     id: 'elite-hacker',
     emoji: '👑',
+    tier: 'platinum',
     name: 'Elite Hacker',
     description: 'Hoàn thành tất cả 10 chương lõi.',
     requiredChapters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -52,6 +59,7 @@ export const badges = [
   {
     id: 'cloud-raider',
     emoji: '☁️',
+    tier: 'silver',
     name: 'Cloud Raider',
     description: 'Hoàn thành Chương 11 — Cloud Security.',
     requiredChapters: [11],
@@ -59,6 +67,7 @@ export const badges = [
   {
     id: 'container-breaker',
     emoji: '🐳',
+    tier: 'silver',
     name: 'Container Breaker',
     description: 'Hoàn thành Chương 12 — Container & Kubernetes.',
     requiredChapters: [12],
@@ -66,6 +75,7 @@ export const badges = [
   {
     id: 'threat-hunter',
     emoji: '🔬',
+    tier: 'silver',
     name: 'Threat Hunter',
     description: 'Hoàn thành Chương 13 — Forensics & Blue Team.',
     requiredChapters: [13],
@@ -73,6 +83,7 @@ export const badges = [
   {
     id: 'cipher-breaker',
     emoji: '🔐',
+    tier: 'silver',
     name: 'Cipher Breaker',
     description: 'Hoàn thành Chương 14 — Crypto & Hash Cracking.',
     requiredChapters: [14],
@@ -80,6 +91,7 @@ export const badges = [
   {
     id: 'polymath',
     emoji: '🏆',
+    tier: 'diamond',
     name: 'Security Polymath',
     description: 'Hoàn thành cả 4 chương chuyên sâu (11–14).',
     requiredChapters: [11, 12, 13, 14],

@@ -5,6 +5,8 @@ import Sidebar from './components/Layout/Sidebar';
 import ProgressHero from './components/Layout/ProgressHero';
 import BadgeToast from './components/Layout/BadgeToast';
 import WelcomeScreen from './components/Layout/WelcomeScreen';
+import ChapterCompleteModal from './components/Achievement/ChapterCompleteModal';
+import type { TrophyTier } from './components/Achievement/TrophyIcon';
 import CommandCheatsheet from './components/Mission/CommandCheatsheet';
 import ChapterMap from './components/Chapter/ChapterMap';
 import MissionPanel from './components/Mission/MissionPanel';
@@ -110,9 +112,11 @@ const WELCOME_SEEN_KEY = 'hacker-path-seen-welcome';
 export default function App(): JSX.Element {
   const progress = useProgress();
   const [activeChapterId, setActiveChapterId] = useState<number | null>(null);
-  const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<{ emoji: string; name: string } | null>(null);
+  const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState<{ emoji: string; name: string; description?: string; tier?: TrophyTier } | null>(null);
+  const [chapterCompleteModal, setChapterCompleteModal] = useState<{ id: number; title: string } | null>(null);
   const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem(WELCOME_SEEN_KEY));
   const seenBadgeIdsRef = useRef<Set<string> | null>(null);
+  const seenChapterCompleteRef = useRef<Set<number> | null>(null);
 
   // Đóng màn chào: nhớ đã xem + vào thẳng Chương 1 cho người mới
   function dismissWelcome() {
@@ -139,14 +143,36 @@ export default function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress.progress.completedMissions]);
 
+  // Detect newly completed chapters
+  useEffect(() => {
+    const completedChapterIds = new Set<number>();
+    for (const chapter of chapters as any[]) {
+      const allDone = getMissionsForChapter(chapter.id).every(
+        (m: any) => progress.progress.completedMissions[`${chapter.id}-${m.id}`]
+      );
+      if (allDone) completedChapterIds.add(chapter.id);
+    }
+    if (seenChapterCompleteRef.current === null) {
+      seenChapterCompleteRef.current = completedChapterIds;
+      return;
+    }
+    const newlyCompleted = [...completedChapterIds].find((id) => !seenChapterCompleteRef.current!.has(id));
+    if (newlyCompleted) {
+      const chapter = (chapters as any[]).find((c) => c.id === newlyCompleted);
+      setChapterCompleteModal({ id: newlyCompleted, title: chapter?.title ?? '' });
+    }
+    seenChapterCompleteRef.current = completedChapterIds;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progress.progress.completedMissions]);
+
   useEffect(() => {
     if (!newlyUnlockedBadge) return;
-    const timer = setTimeout(() => setNewlyUnlockedBadge(null), 4000);
+    const timer = setTimeout(() => setNewlyUnlockedBadge(null), 5000);
     return () => clearTimeout(timer);
   }, [newlyUnlockedBadge]);
 
   return (
-    <div className="h-screen flex flex-col text-gray-200">
+    <div className="h-screen flex flex-col text-hp-fg">
       <Header
         title={activeChapterId ? `Chương ${activeChapterId}` : 'Bản đồ chương'}
       />
@@ -169,6 +195,18 @@ export default function App(): JSX.Element {
       </main>
 
       <BadgeToast badge={newlyUnlockedBadge} />
+      {chapterCompleteModal && (
+        <ChapterCompleteModal
+          chapterId={chapterCompleteModal.id}
+          chapterTitle={chapterCompleteModal.title}
+          onClose={() => { setChapterCompleteModal(null); setActiveChapterId(null); }}
+          onNextChapter={
+            (chapters as any[]).find((c) => c.id === chapterCompleteModal.id + 1)
+              ? () => { setChapterCompleteModal(null); setActiveChapterId(chapterCompleteModal.id + 1); }
+              : undefined
+          }
+        />
+      )}
       {showWelcome && <WelcomeScreen onStart={dismissWelcome} />}
     </div>
   );

@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { api } from '@/lib/api'
 
 const schema = z.object({
   newPassword: z.string().min(8, 'Mật khẩu tối thiểu 8 ký tự').max(72),
@@ -18,8 +19,6 @@ const schema = z.object({
   message: 'Mật khẩu không khớp', path: ['confirmPassword'],
 })
 type FormData = z.infer<typeof schema>
-
-import { api } from '@/lib/api'
 
 function ResetPasswordContent() {
   const router = useRouter()
@@ -48,52 +47,52 @@ function ResetPasswordContent() {
   }
 
   return (
-      <Card className="w-full max-w-md bg-gray-900 border-green-800 text-green-400">
-        <CardHeader>
-          <CardTitle className="text-green-400 font-mono">ĐẶT LẠI MẬT KHẨU</CardTitle>
-          <CardDescription className="text-green-600">Nhập mật khẩu mới của mày</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {done ? (
-            <div className="text-center space-y-2">
-              <p className="text-green-400 font-mono">✓ Đặt lại mật khẩu thành công!</p>
-              <p className="text-gray-500 text-xs">Đang chuyển về trang đăng nhập...</p>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                {form.formState.errors.root && (
-                  <p className="text-red-400 text-sm font-mono">{form.formState.errors.root.message}</p>
-                )}
-                <FormField control={form.control} name="newPassword" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-green-600">Mật khẩu mới</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="password" placeholder="Tối thiểu 8 ký tự"
-                        className="bg-gray-800 border-green-800 text-green-400 placeholder-gray-600 focus:border-green-400" />
-                    </FormControl>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="confirmPassword" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-green-600">Xác nhận mật khẩu</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="password" placeholder="Nhập lại mật khẩu"
-                        className="bg-gray-800 border-green-800 text-green-400 placeholder-gray-600 focus:border-green-400" />
-                    </FormControl>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )} />
-                <Button type="submit" disabled={form.formState.isSubmitting}
-                  className="w-full bg-green-600 text-black hover:bg-green-400 font-mono font-bold">
-                  {form.formState.isSubmitting ? 'Đang xử lý...' : 'ĐẶT LẠI MẬT KHẨU'}
-                </Button>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-      </Card>
+    <Card className="w-full max-w-md bg-hp-card border-hp-border">
+      <CardHeader>
+        <CardTitle className="text-green-700 dark:text-green-400 font-mono">ĐẶT LẠI MẬT KHẨU</CardTitle>
+        <CardDescription className="text-hp-muted">Nhập mật khẩu mới của mày</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {done ? (
+          <div className="text-center space-y-2">
+            <p className="text-green-600 dark:text-green-400 font-mono">✓ Đặt lại mật khẩu thành công!</p>
+            <p className="text-hp-subtle text-xs">Đang chuyển về trang đăng nhập...</p>
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {form.formState.errors.root && (
+                <p className="text-red-500 dark:text-red-400 text-sm font-mono">{form.formState.errors.root.message}</p>
+              )}
+              <FormField control={form.control} name="newPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-hp-fg">Mật khẩu mới</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" placeholder="Tối thiểu 8 ký tự"
+                      className="bg-hp-surface border-hp-border text-hp-fg placeholder:text-hp-subtle focus-visible:border-green-500" />
+                  </FormControl>
+                  <FormMessage className="text-red-500 dark:text-red-400" />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-hp-fg">Xác nhận mật khẩu</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" placeholder="Nhập lại mật khẩu"
+                      className="bg-hp-surface border-hp-border text-hp-fg placeholder:text-hp-subtle focus-visible:border-green-500" />
+                  </FormControl>
+                  <FormMessage className="text-red-500 dark:text-red-400" />
+                </FormItem>
+              )} />
+              <Button type="submit" disabled={form.formState.isSubmitting}
+                className="w-full bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600 text-white font-mono font-bold">
+                {form.formState.isSubmitting ? 'Đang xử lý...' : 'ĐẶT LẠI MẬT KHẨU'}
+              </Button>
+            </form>
+          </Form>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

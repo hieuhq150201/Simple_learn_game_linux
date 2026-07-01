@@ -21,52 +21,52 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit(values: FormData) {
     await api.post('/auth/forgot-password', { email: values.email })
-    setSent(true) // always show success regardless of whether email exists
+    setSent(true)
   }
 
   return (
-      <Card className="w-full max-w-md bg-gray-900 border-green-800 text-green-400">
-        <CardHeader>
-          <CardTitle className="text-green-400 font-mono">QUÊN MẬT KHẨU</CardTitle>
-          <CardDescription className="text-green-600">Nhập email và tao sẽ gửi link đặt lại mật khẩu</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {sent ? (
-            <div className="space-y-4 text-center">
-              <p className="text-green-400 font-mono text-sm">
-                ✓ Nếu email tồn tại, link đã được gửi vào hộp thư của bạn.
-              </p>
-              <p className="text-gray-500 text-xs">Vui lòng kiểm tra cả thư mục spam.</p>
-              <Link href="/login" className="block text-green-600 text-sm hover:text-green-400 font-mono">
-                ← Quay lại đăng nhập
-              </Link>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-green-600">Email</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="email" placeholder="you@example.com"
-                        className="bg-gray-800 border-green-800 text-green-400 placeholder-gray-600 focus:border-green-400" />
-                    </FormControl>
-                    <FormMessage className="text-red-400" />
-                  </FormItem>
-                )} />
-                <Button type="submit" disabled={form.formState.isSubmitting}
-                  className="w-full bg-green-600 text-black hover:bg-green-400 font-mono font-bold">
-                  {form.formState.isSubmitting ? 'Đang gửi...' : 'GỬI LINK ĐẶT LẠI'}
-                </Button>
-                <div className="text-center">
-                  <Link href="/login" className="text-green-600 text-xs hover:text-green-400 font-mono">
-                    ← Quay lại đăng nhập
-                  </Link>
-                </div>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-      </Card>
+    <Card className="w-full max-w-md bg-hp-card border-hp-border">
+      <CardHeader>
+        <CardTitle className="text-green-700 dark:text-green-400 font-mono">QUÊN MẬT KHẨU</CardTitle>
+        <CardDescription className="text-hp-muted">Nhập email và tao sẽ gửi link đặt lại mật khẩu</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {sent ? (
+          <div className="space-y-4 text-center">
+            <p className="text-green-600 dark:text-green-400 font-mono text-sm">
+              ✓ Nếu email tồn tại, link đã được gửi vào hộp thư của bạn.
+            </p>
+            <p className="text-hp-subtle text-xs">Vui lòng kiểm tra cả thư mục spam.</p>
+            <Link href="/login" className="block text-green-600 dark:text-green-500 text-sm hover:text-green-500 dark:hover:text-green-400 font-mono">
+              ← Quay lại đăng nhập
+            </Link>
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField control={form.control} name="email" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-hp-fg">Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" placeholder="you@example.com"
+                      className="bg-hp-surface border-hp-border text-hp-fg placeholder:text-hp-subtle focus-visible:border-green-500" />
+                  </FormControl>
+                  <FormMessage className="text-red-500 dark:text-red-400" />
+                </FormItem>
+              )} />
+              <Button type="submit" disabled={form.formState.isSubmitting}
+                className="w-full bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600 text-white font-mono font-bold">
+                {form.formState.isSubmitting ? 'Đang gửi...' : 'GỬI LINK ĐẶT LẠI'}
+              </Button>
+              <div className="text-center">
+                <Link href="/login" className="text-green-600 dark:text-green-500 text-xs hover:text-green-500 dark:hover:text-green-400 font-mono">
+                  ← Quay lại đăng nhập
+                </Link>
+              </div>
+            </form>
+          </Form>
+        )}
+      </CardContent>
+    </Card>
   )
 }
