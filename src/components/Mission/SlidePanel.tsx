@@ -29,7 +29,7 @@ export default function SlidePanel({ open, title, onClose, children }: SlidePane
 
       {/* Panel */}
       <div
-        className={`absolute top-0 right-0 h-full w-[320px] z-40 flex flex-col bg-hp-card border-l border-hp-border shadow-2xl transition-transform duration-200 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full z-40 flex flex-col bg-hp-card border-l border-hp-border shadow-2xl transition-transform duration-200 ease-out ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
