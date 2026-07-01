@@ -48,7 +48,6 @@ function ResetPasswordContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-900 border-green-800 text-green-400">
         <CardHeader>
           <CardTitle className="text-green-400 font-mono">ĐẶT LẠI MẬT KHẨU</CardTitle>
@@ -95,7 +94,6 @@ function ResetPasswordContent() {
           )}
         </CardContent>
       </Card>
-    </div>
   )
 }
 

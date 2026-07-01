@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useAuthStore } from '@/stores/authStore'
 import { api } from '@/lib/api'
 import {
@@ -163,11 +164,22 @@ export default function ProfilePage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 py-10 px-4">
-      <div className="max-w-xl mx-auto space-y-8">
-        <h1 className="text-2xl font-bold text-green-400 font-mono">
-          [TRANG CÁ NHÂN]
-        </h1>
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+      {/* Nav bar */}
+      <div className="border-b border-gray-800 px-4 py-3 flex items-center gap-4">
+        <Link href="/" className="text-green-600 hover:text-green-400 font-mono text-sm transition-colors">
+          ← Về trang chủ
+        </Link>
+        <span className="text-gray-600 text-sm">|</span>
+        <span className="text-green-400 font-mono text-sm font-bold">[TRANG CÁ NHÂN]</span>
+      </div>
+
+      <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
+        {/* Desktop: 2 cột — avatar + info bên trái, password + email bên phải */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Cột trái: avatar + thông tin */}
+        <div className="space-y-6">
 
         {/* Avatar */}
         <Card className="bg-gray-900 border-gray-800">
@@ -285,6 +297,11 @@ export default function ProfilePage() {
             </Form>
           </CardContent>
         </Card>
+
+        </div>{/* end cột trái */}
+
+        {/* Cột phải: password + email */}
+        <div className="space-y-6">
 
         {/* Change password */}
         <Card className="bg-gray-900 border-gray-800">
@@ -426,6 +443,8 @@ export default function ProfilePage() {
             </Form>
           </CardContent>
         </Card>
+        </div>{/* end cột phải */}
+        </div>{/* end grid */}
       </div>
     </div>
   )

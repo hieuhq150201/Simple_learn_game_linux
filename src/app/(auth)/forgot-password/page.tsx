@@ -25,7 +25,6 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-900 border-green-800 text-green-400">
         <CardHeader>
           <CardTitle className="text-green-400 font-mono">QUÊN MẬT KHẨU</CardTitle>
@@ -69,6 +68,5 @@ export default function ForgotPasswordPage() {
           )}
         </CardContent>
       </Card>
-    </div>
   )
 }
